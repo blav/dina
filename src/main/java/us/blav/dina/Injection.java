@@ -1,16 +1,21 @@
 package us.blav.dina;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.*;
+import com.google.inject.name.Names;
+import us.blav.dina.is1.IS1Module;
 
 public class Injection {
 
   private final Injector injector = Guice.createInjector (new AbstractModule () {
     @Override
     protected void configure () {
-      bind (MemoryHeap.class).toProvider (() -> new MemoryHeap (1000));
-      bind (InstructionProcessor.class).toInstance (new InstructionProcessor1 ());
+      install (new IS1Module ());
+      bind (MemoryHeap.FACTORY_TYPE)
+        .toInstance (config -> new MemoryHeap (config.getMemory ()));
+
+      bind (Randomizer.class)
+        .annotatedWith (Names.named ("default"))
+        .toInstance (new DefaultRandomizer (0));
     }
   });
 
@@ -18,5 +23,21 @@ public class Injection {
 
   public static Injector getInjector () {
     return singleton.injector;
+  }
+
+  public static <T> T getInstance (TypeLiteral<T> type) {
+    return getInjector ().getInstance (Key.get (type));
+  }
+
+  public static <T> T getInstance (String name, TypeLiteral<T> type) {
+    return getInjector ().getInstance (Key.get (type, Names.named (name)));
+  }
+
+  public static <T> T getInstance (Class<T> type) {
+    return getInjector ().getInstance (type);
+  }
+
+  public static <T> T getInstance (String name, Class<T> type) {
+    return getInjector ().getInstance (Key.get (type, Names.named (name)));
   }
 }

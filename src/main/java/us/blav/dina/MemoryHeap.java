@@ -1,19 +1,45 @@
 package us.blav.dina;
 
+import com.google.inject.TypeLiteral;
+
 import java.util.Iterator;
 
 import static us.blav.dina.MemoryHeap.State.*;
 
 public class MemoryHeap {
 
+  public static final TypeLiteral<Factory<MemoryHeap>> FACTORY_TYPE =
+    new TypeLiteral<Factory<MemoryHeap>> () {};
+
   public int size () {
     return heap.length;
   }
 
+  public int get (int offset) throws Fault {
+    ensureValidOffset (offset);
+    return Byte.toUnsignedInt (heap [offset]);
+  }
+
+  public void set (int offset, int value) throws Fault {
+    ensureValidOffset (offset);
+    ensureValidValue (value);
+    heap[offset] = (byte) (value & 0xff);
+  }
+
+  public void ensureValidValue (int value) throws Fault {
+    if (value >> 8 > 0)
+      throw new Fault ();
+  }
+
+  public void ensureValidOffset (int offset) throws Fault {
+    if (offset < 0 || offset >= heap.length)
+      throw new Fault ();
+  }
+
   public enum State {
-    free("F"),
-    inuse("I"),
-    disposed("D"),;
+    free ("F"),
+    inuse ("I"),
+    disposed ("D"),;
 
     private final String shortName;
 
@@ -34,6 +60,7 @@ public class MemoryHeap {
   public Iterable<Cell> fromFirst () {
     return () -> new Iterator<Cell> () {
       private Cell current = first;
+
       public boolean hasNext () {
         return current != null;
       }
@@ -46,10 +73,10 @@ public class MemoryHeap {
     };
   }
 
-
   public Iterable<Cell> fromLast () {
     return () -> new Iterator<Cell> () {
       private Cell current = last;
+
       public boolean hasNext () {
         return current != null;
       }
@@ -63,7 +90,7 @@ public class MemoryHeap {
   }
 
   public MemoryHeap (int size) {
-    this.heap = new byte [size];
+    this.heap = new byte[size];
     this.first = this.last = new Cell ();
   }
 
@@ -183,12 +210,38 @@ public class MemoryHeap {
       }
     }
 
+    public int getOffset () {
+      return offset;
+    }
+
+    public int getSize () {
+      return size;
+    }
+
+    public Cell getLeft () {
+      return left;
+    }
+
+    public Cell getRight () {
+      return right;
+    }
+
+    public State getState () {
+      return state;
+    }
+
+    public boolean contains (int offset) {
+      return offset >= this.offset && offset < this.offset + size;
+    }
+
     @Override
     public String toString () {
       return "[" + offset + "-" + state.getShortName () + "-" + (offset + size) + "[";
     }
 
-    private long offset;
+
+
+    private int offset;
 
     private int size;
 
@@ -197,10 +250,9 @@ public class MemoryHeap {
     private Cell right;
 
     private State state;
-
   }
 
-  private byte [] heap;
+  private byte[] heap;
 
   private Cell first;
 

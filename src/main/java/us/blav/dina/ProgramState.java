@@ -1,6 +1,6 @@
 package us.blav.dina;
 
-public class ProgramState<REGISTERS> implements EnergyTracker {
+public class ProgramState implements EnergyTracker {
 
   private final MemoryHeap.Cell cell;
 
@@ -27,7 +27,7 @@ public class ProgramState<REGISTERS> implements EnergyTracker {
     this.child = child;
   }
 
-  public long getInstructionPointer () {
+  public int getInstructionPointer () {
     return instructionPointer;
   }
 
