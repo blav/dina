@@ -13,9 +13,9 @@ public class Injection {
       bind (MemoryHeap.FACTORY_TYPE)
         .toInstance (config -> new MemoryHeap (config.getMemory ()));
 
-      bind (Randomizer.class)
-        .annotatedWith (Names.named ("default"))
-        .toInstance (new DefaultRandomizer (0));
+      bind (Randomizer.FACTORY_TYPE)
+        .annotatedWith (Names.named (Config.Randomizer.DEFAULT))
+        .toInstance (config -> new DefaultRandomizer (config.getRandomizer ().getSeed ()));
     }
   });
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import static us.blav.dina.Injection.getInstance;
-import static us.blav.dina.MemoryHeap.Direction.left;
 import static us.blav.dina.MemoryHeap.Direction.right;
 
 public class VirtualMachine {
@@ -24,7 +23,7 @@ public class VirtualMachine {
   public VirtualMachine (Config config) {
     this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (config);
     this.processor = getInstance (config.getInstructionSet (), InstructionProcessor.class);
-    this.randomizer = getInstance (config.getRandomizer (), Randomizer.class);
+    this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (config);
     this.programStates = new HashMap<> ();
     try {
       List<String> bootstrap = config.getBootstrapCode ();
