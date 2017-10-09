@@ -15,25 +15,25 @@ public class MemoryHeap {
     return heap.length;
   }
 
-  public int get (int offset) throws Fault {
+  public int get (int offset) {
     ensureValidOffset (offset);
     return Byte.toUnsignedInt (heap [offset]);
   }
 
-  public void set (int offset, int value) throws Fault {
+  public void set (int offset, int value) {
     ensureValidOffset (offset);
     ensureValidValue (value);
     heap[offset] = (byte) (value & 0xff);
   }
 
-  public void ensureValidValue (int value) throws Fault {
+  public void ensureValidValue (int value) {
     if (value >> 8 > 0)
-      throw new Fault ();
+      throw new IllegalStateException ();
   }
 
-  public void ensureValidOffset (int offset) throws Fault {
+  public void ensureValidOffset (int offset)  {
     if (offset < 0 || offset >= heap.length)
-      throw new Fault ();
+      throw new IllegalStateException ();
   }
 
   public enum State {

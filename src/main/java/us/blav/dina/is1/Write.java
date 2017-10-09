@@ -1,19 +1,21 @@
 package us.blav.dina.is1;
 
 import us.blav.dina.Fault;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionRegistry;
 import us.blav.dina.MemoryHeap;
 
-import static us.blav.dina.is1.Processor.Flags.auto_increment_ip;
+import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 
 public class Write implements InstructionFactory {
 
   @Override
-  public void register (Processor processor) {
+  public void register (InstructionRegistry registry) {
     for (int address = 0; address < 4; address++) {
       for (int value = 0; value < 4; value++) {
         final int faddress = address;
         final int fvalue = value;
-        processor.register (
+        registry.register (
           11 << 4 | address << 2 | value << 0,
           String.format ("write_r%d_at_r%d", fvalue, faddress),
           (machine, state) -> {
@@ -22,12 +24,15 @@ public class Write implements InstructionFactory {
             if (v >> 8 > 0)
               throw new Fault ();
 
-            boolean ok = state.getCell ().contains (faddress);
+            int vaddress = state.get (faddress);
+            boolean ok = state.getCell ().contains (vaddress);
             if (ok == false && state.getChild () != null)
-              ok = state.getCell ().contains (faddress);
+              ok = state.getChild ().contains (vaddress);
 
-            if (ok)
-              heap.set (state.get (faddress), (byte) v);
+            if (ok) {
+              heap.set (vaddress, (byte) v);
+              return;
+            }
 
             throw new Fault ();
           }, auto_increment_ip);

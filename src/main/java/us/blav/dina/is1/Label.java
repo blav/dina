@@ -1,12 +1,15 @@
 package us.blav.dina.is1;
 
-import static us.blav.dina.is1.Processor.Flags.auto_increment_ip;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionRegistry;
+
+import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 
 public class Label implements InstructionFactory {
   @Override
-  public void register (Processor processor) {
+  public void register (InstructionRegistry registry) {
     for (int label = 0; label < 4; label ++) {
-      processor.register (
+      registry.register (
         getOpcode (label),
         String.format ("label%d", label),
         (machine, state) -> {},

@@ -1,7 +1,4 @@
-package us.blav.dina.is1;
-
-import us.blav.dina.Fault;
-import us.blav.dina.VirtualMachine;
+package us.blav.dina;
 
 public class AutoIncrementIPDecorator implements Instruction {
   
@@ -12,7 +9,7 @@ public class AutoIncrementIPDecorator implements Instruction {
   }
 
   @Override
-  public void process (VirtualMachine machine, State state) throws Fault {
+  public void process (VirtualMachine machine, ProgramState state) throws Fault {
     try {
       nested.process (machine, state);
     } finally {

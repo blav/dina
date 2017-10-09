@@ -31,18 +31,9 @@
         <configuration>
           <includes>
             <include>**/Test*.java</include>
-            <include>**/*Test.java</include>
-            <include>**/*Tests.java</include>
-            <include>**/*TestCase.java</include>
           </includes>
           <properties>
-            <!-- <includeTags>fast</includeTags> -->
             <excludeTags>slow</excludeTags>
-            <!--
-            <configurationParameters>
-              junit.jupiter.conditions.deactivate = *
-            </configurationParameters>
-            -->
           </properties>
         </configuration>
         <dependencies>
@@ -57,6 +48,14 @@
   </build>
 
   <dependencies>
+
+    <!-- junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -69,6 +68,8 @@
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- guice -->
     <dependency>
       <groupId>com.google.inject</groupId>
       <artifactId>guice</artifactId>
@@ -79,6 +80,8 @@
       <artifactId>guice-multibindings</artifactId>
       <version>4.1.0</version>
     </dependency>
+
+    <!-- jackson -->
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-yaml</artifactId>
@@ -89,6 +92,6 @@
       <artifactId>jackson-databind</artifactId>
       <version>2.9.1</version>
     </dependency>
-  </dependencies>
 
+  </dependencies>
 </project>

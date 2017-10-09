@@ -3,20 +3,28 @@ package us.blav.dina.is1;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import us.blav.dina.InstructionProcessor;
+import us.blav.dina.*;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 import static com.google.inject.name.Names.named;
 
 public class IS1Module extends AbstractModule {
 
+  public static final String MODULE_NAME = "is1";
+
   @Override
   protected void configure () {
     bind (InstructionProcessor.class)
-      .annotatedWith (named ("is1"))
-      .to (Processor.class);
+      .annotatedWith (named (MODULE_NAME))
+      .to (IS1Processor.class);
 
-    Multibinder<InstructionFactory> m = newSetBinder (binder (), InstructionFactory.class);
+    bind (FaultHandler.class)
+      .annotatedWith (named (MODULE_NAME))
+      .toInstance ((fault, state) -> {
+        System.out.println ("fault");
+      });
+
+    Multibinder<InstructionFactory> m = newSetBinder (binder (), InstructionFactory.class, Names.named (MODULE_NAME));
     m.addBinding ().to (Add.class);
     m.addBinding ().to (Alloc.class);
     m.addBinding ().to (Decrement.class);

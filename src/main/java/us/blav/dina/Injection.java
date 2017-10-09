@@ -2,7 +2,10 @@ package us.blav.dina;
 
 import com.google.inject.*;
 import com.google.inject.name.Names;
+import com.google.inject.util.Types;
 import us.blav.dina.is1.IS1Module;
+
+import java.util.Set;
 
 public class Injection {
 
@@ -39,5 +42,9 @@ public class Injection {
 
   public static <T> T getInstance (String name, Class<T> type) {
     return getInjector ().getInstance (Key.get (type, Names.named (name)));
+  }
+
+  public static <T> Set<T> getInstanceSet (String name, Class<T> type) {
+    return (Set<T>) getInjector ().getInstance (Key.get (Types.setOf (type), Names.named (name)));
   }
 }

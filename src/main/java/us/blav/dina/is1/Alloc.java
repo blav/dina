@@ -1,22 +1,24 @@
 package us.blav.dina.is1;
 
 import us.blav.dina.Fault;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionRegistry;
 import us.blav.dina.MemoryHeap;
 
+import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 import static us.blav.dina.MemoryHeap.Direction.left;
 import static us.blav.dina.MemoryHeap.Direction.right;
 import static us.blav.dina.MemoryHeap.State.free;
-import static us.blav.dina.is1.Processor.Flags.auto_increment_ip;
 
 public class Alloc implements InstructionFactory {
 
   @Override
-  public void register (Processor processor) {
+  public void register (InstructionRegistry registry) {
     for (int size = 0; size < 4; size++) {
       for (int address = 0; address < 4; address++) {
         final int fsize = size;
         final int faddress = address;
-        processor.register (
+        registry.register (
           12 << 4 | size << 2 | address << 0,
           String.format ("alloc_r%d_bytes_into_r%d", fsize, faddress),
           (machine, state) -> {
@@ -25,14 +27,15 @@ public class Alloc implements InstructionFactory {
 
             int vsize = state.get (fsize);
             MemoryHeap heap = machine.getHeap ();
-            MemoryHeap.Cell cright = state.getCell ();
-            MemoryHeap.Cell cleft = state.getCell ();
+            final MemoryHeap.Cell cell = state.getCell ();
+            MemoryHeap.Cell cright = cell;
+            MemoryHeap.Cell cleft = cell;
             MemoryHeap.Cell child;
-            while (cright != null && cright.getState () != free && cright.getSize () < vsize)
+            while (cright != null && (cright.getState () != free || cright.getSize () < vsize))
               cright = cright.getRight ();
 
-            while (cleft != null && cleft.getState () != free && cleft.getSize () < vsize)
-              cleft = cright.getLeft ();
+            while (cleft != null && (cleft.getState () != free || cleft.getSize () < vsize))
+              cleft = cleft.getLeft ();
 
             if (cleft == null && cright == null) {
               throw new Fault ();
@@ -43,8 +46,8 @@ public class Alloc implements InstructionFactory {
             } else {
               MemoryHeap.Cell c;
               MemoryHeap.Direction d;
-              int dl = state.getCell ().getOffset () - cleft.getOffset ();
-              int dr = cright.getOffset () - state.getCell ().getOffset ();
+              int dl = cell.getOffset () - cleft.getOffset () - cleft.getSize ();
+              int dr = cright.getOffset () - cell.getOffset () - cell.getSize ();
               if (dr == dl) {
                 boolean l = machine.getRandomizer ().nextBoolean ();
                 d = l ? right : left;

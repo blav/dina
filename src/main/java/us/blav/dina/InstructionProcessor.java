@@ -1,11 +1,24 @@
 package us.blav.dina;
 
-import java.util.List;
-
 public interface InstructionProcessor {
 
-  void process (VirtualMachine machine, ProgramState state);
+  ProgramState newProgram (MemoryHeap.Cell cell);
 
-  void launch (VirtualMachine vm, MemoryHeap.Cell cell, List<String> code);
+  default Instruction newUnknownIntruction (int opcode) {
+    return (machine, state) -> {
+    };
+  }
 
+  enum Decorator {
+
+    auto_increment_ip {
+      @Override
+      public Instruction decorate (Instruction instruction) {
+        return new AutoIncrementIPDecorator (instruction);
+      }
+    },;
+
+    public abstract Instruction decorate (Instruction instruction);
+
+  }
 }
