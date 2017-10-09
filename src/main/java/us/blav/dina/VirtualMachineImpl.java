@@ -2,7 +2,9 @@ package us.blav.dina;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static us.blav.dina.Injection.getInstance;
 import static us.blav.dina.Injection.getInstanceMap;
 import static us.blav.dina.Injection.getInstanceSet;
@@ -26,14 +28,21 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final ExecutionChainImpl execution;
 
+  private final HeapReclaimer reclaimer;
+
   private long programIdGenerator;
+
+  private EnergyTracker tracker;
 
   public VirtualMachineImpl (Config config) {
     this.config = config;
     this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (config);
     this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (config);
+    this.reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (config);
     this.programStates = new HashMap<> ();
     this.execution = new ExecutionChainImpl (this);
+    this.tracker = amount -> {
+    };
 
     Map<String, ExecutionFilter> filterMap = getInstanceMap (String.class, ExecutionFilter.class);
     for (String filter : config.getExecutionFilters ()) {
@@ -57,13 +66,11 @@ public class VirtualMachineImpl implements VirtualMachine {
     List<String> boostrap = config.getBootstrapCode ();
     try {
       int size = boostrap.size ();
-      EnergyTracker tracker = amount -> {
-      };
       MemoryHeap.Cell first = this.heap.getFirst ();
-      MemoryHeap.Cell c = first.split (right, (this.heap.size () - size) / 2, tracker);
-      MemoryHeap.Cell cell = first.split (right, size, tracker);
+      MemoryHeap.Cell c = first.split (right, (this.heap.size () - size) / 2, this.tracker);
+      MemoryHeap.Cell cell = first.split (right, size, this.tracker);
 
-      c.free (tracker);
+      c.free (this.tracker);
       if (cell.getSize () != boostrap.size ())
         throw new IllegalArgumentException ();
 
@@ -119,8 +126,27 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   @Override
   public void kill (long pid) {
-    if (this.programStates.remove (pid) == null)
+    ProgramState p = this.programStates.remove (pid);
+    if (p == null)
       throw new IllegalStateException ("no such pid " + pid);
+
+    try {
+      p.getCell ().free (this.tracker);
+      if (p.getChild () != null)
+        p.getChild ().free (this.tracker);
+    } catch (Fault fault) {
+      throw new RuntimeException (fault);
+    }
+  }
+
+  @Override
+  public Collection<Program> getPrograms () {
+    return programStates.values ().stream ().map (p -> p).collect(toList());
+  }
+
+  @Override
+  public HeapReclaimer getReclaimer () {
+    return reclaimer;
   }
 
   public <A extends Appendable> A dump (long pid, A out) throws IOException {
@@ -144,6 +170,9 @@ public class VirtualMachineImpl implements VirtualMachine {
       // copy state list since it can be altered while in the loop
       for (Map.Entry<Long, ProgramState> state : new ArrayList<> (programStates.entrySet ()))
         process (state.getValue ());
+
+      for (Program program : getReclaimer ().reclaim (this))
+        kill (program.getId ());
     }
   }
 }

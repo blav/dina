@@ -4,9 +4,9 @@ import java.util.*;
 
 public class InstructionRegistry {
 
-  private final Map<Integer, RegisteredInstruction> opcodes;
+  private final Map<Integer, Opcode> opcodes;
 
-  private final Map<String, RegisteredInstruction> symbols;
+  private final Map<String, Opcode> symbols;
 
   public InstructionRegistry (Collection<? extends InstructionFactory> factories) {
     this.opcodes = new HashMap<> ();
@@ -14,13 +14,13 @@ public class InstructionRegistry {
     factories.stream ().forEach (f -> f.register (this));
   }
 
-  public RegisteredInstruction getInstruction (VirtualMachine machine, int opcode) {
+  public Opcode getInstruction (VirtualMachine machine, int opcode) {
     return Optional.ofNullable (opcodes.get (opcode))
-      .orElseGet (() -> new RegisteredInstruction (
+      .orElseGet (() -> new Opcode (
         machine.getProcessor ().newUnknownIntruction (opcode), opcode, "unknown" + opcode));
   }
 
-  public RegisteredInstruction getInstruction (String symbol) {
+  public Opcode getInstruction (String symbol) {
     return Optional.ofNullable (this.symbols.get (symbol))
       .orElseThrow (NoSuchElementException::new);
   }
@@ -33,7 +33,7 @@ public class InstructionRegistry {
     for (InstructionProcessor.Decorator flag : flags)
       instruction = flag.decorate (instruction);
 
-    RegisteredInstruction i = new RegisteredInstruction (instruction, opcode, symbol);
+    Opcode i = new Opcode (instruction, opcode, symbol);
     if (this.opcodes.put (opcode, i) != null)
       throw new IllegalStateException ();
 
@@ -41,30 +41,4 @@ public class InstructionRegistry {
       throw new IllegalStateException ();
   }
 
-  public static class RegisteredInstruction {
-
-    private final Instruction instruction;
-
-    private final int opcode;
-
-    private final String symbol;
-
-    public Instruction getInstruction () {
-      return instruction;
-    }
-
-    public int getOpcode () {
-      return opcode;
-    }
-
-    public String getSymbol () {
-      return symbol;
-    }
-
-    private RegisteredInstruction (Instruction instruction, int opcode, String symbol) {
-      this.instruction = instruction;
-      this.opcode = opcode;
-      this.symbol = symbol;
-    }
-  }
 }

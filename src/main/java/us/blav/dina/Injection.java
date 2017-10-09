@@ -1,9 +1,9 @@
 package us.blav.dina;
 
 import com.google.inject.*;
-import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
 import com.google.inject.util.Types;
+import us.blav.dina.filters.FiltersModule;
 import us.blav.dina.is1.IS1Module;
 
 import java.util.Map;
@@ -15,17 +15,17 @@ public class Injection {
     @Override
     protected void configure () {
       install (new IS1Module ());
+      install (new FiltersModule ());
       bind (MemoryHeap.FACTORY_TYPE)
         .toInstance (config -> new MemoryHeap (config.getMemory ()));
 
       bind (Randomizer.FACTORY_TYPE)
-        .annotatedWith (Names.named (Config.Randomizer.DEFAULT))
+        .annotatedWith (Names.named (Config.DEFAULT))
         .toInstance (config -> new DefaultRandomizer (config.getRandomizer ().getSeed ()));
 
-      MapBinder<String, ExecutionFilter> filters = MapBinder.newMapBinder (binder (), String.class, ExecutionFilter.class);
-      filters.addBinding ("trace-forks").to (TraceForksFilter.class);
-      filters.addBinding ("trace-instructions").to (TraceInstructionsFilter.class);
-
+      bind (HeapReclaimer.FACTORY_TYPE)
+        .annotatedWith (Names.named (Config.DEFAULT))
+        .toInstance (config -> new HeapReclaimerImpl (config));
     }
   });
 

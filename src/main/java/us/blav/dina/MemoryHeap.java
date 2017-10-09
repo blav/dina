@@ -26,6 +26,18 @@ public class MemoryHeap {
     heap[offset] = (byte) (value & 0xff);
   }
 
+  public int getAvailable () {
+    return available;
+  }
+
+  public int getTotal () {
+    return heap.length;
+  }
+
+  public int getUsed () {
+    return heap.length - available;
+  }
+
   public void ensureValidValue (int value) {
     if (value >> 8 > 0)
       throw new IllegalStateException ();
@@ -92,6 +104,7 @@ public class MemoryHeap {
   public MemoryHeap (int size) {
     this.heap = new byte[size];
     this.first = this.last = new Cell ();
+    this.available = this.heap.length;
   }
 
   public Cell getFirst () {
@@ -125,6 +138,7 @@ public class MemoryHeap {
       if (size > this.size)
         throw new Fault ();
 
+      available -= size;
       if (size == this.size) {
         this.state = inuse;
         return this;
@@ -164,6 +178,7 @@ public class MemoryHeap {
       if (state != inuse)
         throw new Fault ();
 
+      available += size;
       if (right != null && right.state == free && left != null && left.state == free) {
         this.state = free;
         this.left.state = disposed;
@@ -250,7 +265,10 @@ public class MemoryHeap {
     private Cell right;
 
     private State state;
+
   }
+
+  private int available;
 
   private byte[] heap;
 

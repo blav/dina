@@ -1,6 +1,6 @@
 package us.blav.dina;
 
-import static us.blav.dina.Config.Randomizer.DEFAULT;
+import static us.blav.dina.Config.DEFAULT;
 
 public class Main {
   public static void main (String... args) {
@@ -9,6 +9,11 @@ public class Main {
       .setRandomizer (new Config.Randomizer ()
         .setName (DEFAULT)
         .setSeed (0))
+      .setReclaimer (new Config.Reclaimer ()
+        .setName (DEFAULT)
+        .setThresholdHigh (.7)
+        .setThresholdLow (.5)
+      )
       .setMemory (100000)
       .addExecutionFilters (
         "trace-forks"

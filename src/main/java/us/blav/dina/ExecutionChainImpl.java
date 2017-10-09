@@ -1,7 +1,5 @@
 package us.blav.dina;
 
-import us.blav.dina.InstructionRegistry.RegisteredInstruction;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,7 @@ public class ExecutionChainImpl implements ExecutionChain {
   }
 
   @Override
-  public void next (VirtualMachine machine, ProgramState state, RegisteredInstruction instruction) {
+  public void next (VirtualMachine machine, ProgramState state, Opcode instruction) {
     if (this.current == filters.size ()) {
       this.current = 0;
       return;

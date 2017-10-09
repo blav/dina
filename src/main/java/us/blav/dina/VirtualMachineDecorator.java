@@ -1,5 +1,7 @@
 package us.blav.dina;
 
+import java.util.Collection;
+
 public class VirtualMachineDecorator implements VirtualMachine {
 
   private final VirtualMachine machine;
@@ -36,5 +38,15 @@ public class VirtualMachineDecorator implements VirtualMachine {
   @Override
   public void kill (long pid) {
     machine.kill (pid);
+  }
+
+  @Override
+  public Collection<Program> getPrograms () {
+    return machine.getPrograms ();
+  }
+
+  @Override
+  public HeapReclaimer getReclaimer () {
+    return machine.getReclaimer ();
   }
 }

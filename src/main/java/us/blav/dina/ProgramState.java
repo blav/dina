@@ -1,6 +1,6 @@
 package us.blav.dina;
 
-public class ProgramState implements EnergyTracker {
+public class ProgramState implements EnergyTracker, Program {
 
   private final MemoryHeap.Cell cell;
 
@@ -15,10 +15,12 @@ public class ProgramState implements EnergyTracker {
     this.registers = new int[registers];
   }
 
+  @Override
   public MemoryHeap.Cell getCell () {
     return cell;
   }
 
+  @Override
   public MemoryHeap.Cell getChild () {
     return child;
   }
@@ -30,6 +32,7 @@ public class ProgramState implements EnergyTracker {
     this.child = child;
   }
 
+  @Override
   public int getInstructionPointer () {
     return instructionPointer;
   }
@@ -41,6 +44,7 @@ public class ProgramState implements EnergyTracker {
     this.instructionPointer = instructionPointer;
   }
 
+  @Override
   public long getId () {
     return id;
   }
@@ -52,6 +56,7 @@ public class ProgramState implements EnergyTracker {
   @Override
   public void reportEnergySpent (long amount) {
   }
+
   public void set (int register, int value) throws Fault {
     ensureValidRegister (register);
     ensureValidValue (value);

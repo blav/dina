@@ -1,10 +1,11 @@
-package us.blav.dina;
+package us.blav.dina.filters;
 
-import us.blav.dina.InstructionRegistry.RegisteredInstruction;
+import us.blav.dina.*;
+import us.blav.dina.Opcode;
 
 public class TraceForksFilter implements ExecutionFilter {
   @Override
-  public void next (ExecutionChain chain, VirtualMachine machine, ProgramState state, RegisteredInstruction instruction) {
+  public void next (ExecutionChain chain, VirtualMachine machine, ProgramState state, Opcode opcode) {
     chain.next (new VirtualMachineDecorator (machine) {
       @Override
       public long launch (ProgramState state) {
@@ -12,6 +13,6 @@ public class TraceForksFilter implements ExecutionFilter {
         System.out.printf ("lanuched program %d\n", pid);
         return pid;
       }
-    }, state, instruction);
+    }, state, opcode);
   }
 }
