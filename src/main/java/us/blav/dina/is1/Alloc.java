@@ -1,9 +1,6 @@
 package us.blav.dina.is1;
 
-import us.blav.dina.Fault;
-import us.blav.dina.InstructionFactory;
-import us.blav.dina.InstructionRegistry;
-import us.blav.dina.MemoryHeap;
+import us.blav.dina.*;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 import static us.blav.dina.MemoryHeap.Direction.left;
@@ -26,7 +23,6 @@ public class Alloc implements InstructionFactory {
               throw new Fault ();
 
             int vsize = state.get (fsize);
-            MemoryHeap heap = machine.getHeap ();
             final MemoryHeap.Cell cell = state.getCell ();
             MemoryHeap.Cell cright = cell;
             MemoryHeap.Cell cleft = cell;

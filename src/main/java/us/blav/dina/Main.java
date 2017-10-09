@@ -9,7 +9,11 @@ public class Main {
       .setRandomizer (new Config.Randomizer ()
         .setName (DEFAULT)
         .setSeed (0))
-      .setMemory (10000)
+      .setMemory (100000)
+      .addExecutionFilters (
+        "trace-forks"
+        //, "trace-instructions"
+      )
       .addBoostrapCode (
         "label0",
         "find_forward_label0_into_r0",
@@ -32,7 +36,7 @@ public class Main {
         "label0"
       );
 
-    VirtualMachine vm = new VirtualMachine (config);
+    VirtualMachineImpl vm = new VirtualMachineImpl (config);
     vm.start ();
   }
 }

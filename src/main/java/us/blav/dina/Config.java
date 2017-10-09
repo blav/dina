@@ -8,6 +8,7 @@ public class Config {
 
   public Config () {
     this.bootstrapCode = new ArrayList<> ();
+    this.executionFilters = new ArrayList<> ();
     this.randomizer = new Randomizer ().setName (Randomizer.DEFAULT).setSeed (0);
   }
 
@@ -75,6 +76,15 @@ public class Config {
     return this;
   }
 
+  public List<String> getExecutionFilters () {
+    return executionFilters;
+  }
+
+  public Config addExecutionFilters (String... filters) {
+    this.executionFilters.addAll (Arrays.asList (filters));
+    return this;
+  }
+
   private Randomizer randomizer;
 
   private String instructionSet;
@@ -82,5 +92,7 @@ public class Config {
   private int memory;
 
   private List<String> bootstrapCode;
+
+  private final List<String> executionFilters;
 
 }

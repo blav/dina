@@ -3,6 +3,7 @@ package us.blav.dina.is1;
 import us.blav.dina.InstructionFactory;
 import us.blav.dina.InstructionRegistry;
 import us.blav.dina.MemoryHeap;
+import us.blav.dina.VirtualMachine;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 
