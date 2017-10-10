@@ -4,6 +4,8 @@ import java.util.Collection;
 
 public interface VirtualMachine {
 
+  Config getConfig ();
+
   InstructionProcessor getProcessor ();
 
   MemoryHeap getHeap ();
@@ -19,4 +21,7 @@ public interface VirtualMachine {
   Collection<Program> getPrograms ();
 
   HeapReclaimer getReclaimer ();
+
+  RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name);
+
 }

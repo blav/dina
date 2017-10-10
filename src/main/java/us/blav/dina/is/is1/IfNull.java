@@ -1,10 +1,10 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import us.blav.dina.InstructionFactory;
 import us.blav.dina.InstructionRegistry;
-import us.blav.dina.VirtualMachine;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.is.is1.IS1Randomizers.IF;
 
 public class IfNull implements InstructionFactory {
 
@@ -16,7 +16,7 @@ public class IfNull implements InstructionFactory {
         13 << 4 | 0 << 2 | value << 0,
         String.format ("if_r%d_is_null", fvalue),
         (machine, state) -> {
-          if (state.get (fvalue) != 0)
+          if (state.get (fvalue, machine.getRandomizer (IF)) != 0)
             state.incrementIP ();
         }, auto_increment_ip);
     }

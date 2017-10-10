@@ -49,4 +49,14 @@ public class VirtualMachineDecorator implements VirtualMachine {
   public HeapReclaimer getReclaimer () {
     return machine.getReclaimer ();
   }
+
+  @Override
+  public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
+    return machine.getRandomizer (name);
+  }
+
+  @Override
+  public Config getConfig () {
+    return machine.getConfig ();
+  }
 }

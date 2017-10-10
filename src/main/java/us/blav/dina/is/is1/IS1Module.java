@@ -1,9 +1,11 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
-import us.blav.dina.*;
+import us.blav.dina.FaultHandler;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionProcessor;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 import static com.google.inject.name.Names.named;
@@ -21,7 +23,7 @@ public class IS1Module extends AbstractModule {
     bind (FaultHandler.class)
       .annotatedWith (named (MODULE_NAME))
       .toInstance ((fault, state) -> {
-        System.out.println ("fault");
+        state.incrementFaults ();
       });
 
     Multibinder<InstructionFactory> m = newSetBinder (binder (), InstructionFactory.class, Names.named (MODULE_NAME));

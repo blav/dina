@@ -1,11 +1,13 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
+import us.blav.dina.Fault;
 import us.blav.dina.InstructionFactory;
 import us.blav.dina.InstructionRegistry;
 import us.blav.dina.MemoryHeap;
-import us.blav.dina.VirtualMachine;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.RegisterRandomizer.NOP;
+import static us.blav.dina.is.is1.IS1Randomizers.READ;
 
 public class Read implements InstructionFactory {
 
@@ -19,9 +21,13 @@ public class Read implements InstructionFactory {
           10 << 4 | address << 2 | result << 0,
           String.format ("read_at_r%d_into_r%d", faddress, fresult),
           (machine, state) -> {
-            int vaddress = state.get (faddress);
+            int vaddress = state.get (faddress, NOP);
             MemoryHeap heap = machine.getHeap ();
-            state.set (fresult, heap.get (vaddress));
+            try {
+              state.set (fresult, heap.get (vaddress), machine.getRandomizer (READ));
+            } catch (IllegalStateException x) {
+              throw new Fault (x);
+            }
           }, auto_increment_ip);
       }
     }

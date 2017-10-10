@@ -1,5 +1,7 @@
 package us.blav.dina;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -89,11 +91,11 @@ public class Config {
     return this;
   }
 
-  public String getInstructionSet () {
+  public InstructionSetConfig getInstructionSet () {
     return instructionSet;
   }
 
-  public Config setInstructionSet (String instructionSet) {
+  public Config setInstructionSet (InstructionSetConfig instructionSet) {
     this.instructionSet = instructionSet;
     return this;
   }
@@ -134,16 +136,22 @@ public class Config {
     return this;
   }
 
+  @JsonProperty("randomizer")
   private Randomizer randomizer;
 
-  private String instructionSet;
-
+  @JsonProperty("memory")
   private int memory;
 
+  @JsonProperty("bootstrap")
   private List<String> bootstrapCode;
 
+  @JsonProperty("reclaimer")
   private Reclaimer reclaimer;
 
+  @JsonProperty("instruction-set")
+  private InstructionSetConfig instructionSet;
+
+  @JsonProperty("execution-filters")
   private final List<String> executionFilters;
 
 }

@@ -1,4 +1,4 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import us.blav.dina.InstructionProcessor;
 import us.blav.dina.MemoryHeap;

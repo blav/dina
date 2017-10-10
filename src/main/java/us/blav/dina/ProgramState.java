@@ -1,5 +1,7 @@
 package us.blav.dina;
 
+import static us.blav.dina.RegisterRandomizer.NOP;
+
 public class ProgramState implements EnergyTracker, Program {
 
   private final MemoryHeap.Cell cell;
@@ -37,7 +39,8 @@ public class ProgramState implements EnergyTracker, Program {
     return instructionPointer;
   }
 
-  public void setInstructionPointer (int instructionPointer) throws Fault {
+  public void setInstructionPointer (int instructionPointer, RegisterRandomizer<?> randomizer) throws Fault {
+    instructionPointer = randomizer.randomizeValue (this, instructionPointer);
     if (instructionPointer < 0 || instructionPointer >= this.cell.getMemoryHeap ().size ())
       throw new Fault ();
 
@@ -57,14 +60,15 @@ public class ProgramState implements EnergyTracker, Program {
   public void reportEnergySpent (long amount) {
   }
 
-  public void set (int register, int value) throws Fault {
+  public void set (int register, int value, RegisterRandomizer<?> randomizer) throws Fault {
+    value = randomizer.randomizeValue (this, value);
     ensureValidRegister (register);
     ensureValidValue (value);
     this.registers[register] = value;
   }
 
   public void incrementIP () throws Fault {
-    setInstructionPointer (getInstructionPointer () + 1);
+    setInstructionPointer (getInstructionPointer () + 1, NOP);
   }
 
   private void ensureValidValue (int value) throws Fault {
@@ -72,13 +76,22 @@ public class ProgramState implements EnergyTracker, Program {
       throw new Fault ();
   }
 
-  public int get (int register) {
+  public int get (int register, RegisterRandomizer<?> randomizer) {
     ensureValidRegister (register);
-    return this.registers [register];
+    return randomizer.randomizeValue (this, this.registers [register]);
   }
 
   public int[] getRegisters () {
     return registers;
+  }
+
+  @Override
+  public int getFaults () {
+    return faults;
+  }
+
+  public void incrementFaults () {
+    this.faults ++;
   }
 
   private void ensureValidRegister (int register) {
@@ -87,5 +100,7 @@ public class ProgramState implements EnergyTracker, Program {
   }
 
   private final int [] registers;
+
+  private int faults;
 
 }

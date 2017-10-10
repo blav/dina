@@ -1,10 +1,11 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import us.blav.dina.InstructionFactory;
 import us.blav.dina.InstructionRegistry;
-import us.blav.dina.VirtualMachine;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.RegisterRandomizer.NOP;
+import static us.blav.dina.is.is1.IS1Randomizers.ADD;
 
 public class Add implements InstructionFactory {
 
@@ -20,7 +21,8 @@ public class Add implements InstructionFactory {
             0 << 6 | left << 4 | right << 2 | result << 0,
             String.format ("add_r%d_to_r%d_into_r%d", fleft, fright, fresult),
             (machine, state) -> {
-              state.set (fresult, state.get (fleft) + state.get (fright));
+              state.set (fresult, state.get (fleft, NOP) +
+                state.get (fright, NOP), machine.getRandomizer (ADD));
             }, auto_increment_ip);
         }
       }

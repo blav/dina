@@ -1,10 +1,6 @@
 package us.blav.dina.filters;
 
-import us.blav.dina.ExecutionChain;
-import us.blav.dina.ExecutionFilter;
-import us.blav.dina.Opcode;
-import us.blav.dina.ProgramState;
-import us.blav.dina.VirtualMachine;
+import us.blav.dina.*;
 
 import java.util.stream.IntStream;
 

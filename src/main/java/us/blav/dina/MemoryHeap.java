@@ -101,8 +101,12 @@ public class MemoryHeap {
     };
   }
 
-  public MemoryHeap (int size) {
-    this.heap = new byte[size];
+  public MemoryHeap (VirtualMachine machine) {
+    this (machine.getConfig ().getMemory ());
+  }
+
+  public MemoryHeap (int memory) {
+    this.heap = new byte[memory];
     this.first = this.last = new Cell ();
     this.available = this.heap.length;
   }

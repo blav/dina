@@ -1,11 +1,16 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
-import us.blav.dina.*;
+import us.blav.dina.Fault;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionRegistry;
+import us.blav.dina.MemoryHeap;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
 import static us.blav.dina.MemoryHeap.Direction.left;
 import static us.blav.dina.MemoryHeap.Direction.right;
 import static us.blav.dina.MemoryHeap.State.free;
+import static us.blav.dina.RegisterRandomizer.NOP;
+import static us.blav.dina.is.is1.IS1Randomizers.ALLOC;
 
 public class Alloc implements InstructionFactory {
 
@@ -22,7 +27,7 @@ public class Alloc implements InstructionFactory {
             if (state.getChild () != null)
               throw new Fault ();
 
-            int vsize = state.get (fsize);
+            int vsize = state.get (fsize, machine.getRandomizer (ALLOC));
             final MemoryHeap.Cell cell = state.getCell ();
             MemoryHeap.Cell cright = cell;
             MemoryHeap.Cell cleft = cell;
@@ -59,7 +64,7 @@ public class Alloc implements InstructionFactory {
               child = c.split (d, vsize, state);
             }
 
-            state.set (faddress, child.getOffset ());
+            state.set (faddress, child.getOffset (), NOP);
             state.setChild (child);
           }, auto_increment_ip);
       }

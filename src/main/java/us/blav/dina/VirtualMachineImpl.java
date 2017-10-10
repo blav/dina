@@ -2,13 +2,11 @@ package us.blav.dina;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static us.blav.dina.Injection.getInstance;
-import static us.blav.dina.Injection.getInstanceMap;
-import static us.blav.dina.Injection.getInstanceSet;
+import static us.blav.dina.Injection.*;
 import static us.blav.dina.MemoryHeap.Direction.right;
+import static us.blav.dina.RegisterRandomizer.NOP;
 
 public class VirtualMachineImpl implements VirtualMachine {
 
@@ -36,9 +34,9 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   public VirtualMachineImpl (Config config) {
     this.config = config;
-    this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (config);
-    this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (config);
-    this.reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (config);
+    this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (this);
+    this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (this);
+    this.reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
     this.programStates = new HashMap<> ();
     this.execution = new ExecutionChainImpl (this);
     this.tracker = amount -> {
@@ -54,7 +52,7 @@ public class VirtualMachineImpl implements VirtualMachine {
       }
     }
 
-    String instructionSet = config.getInstructionSet ();
+    String instructionSet = config.getInstructionSet ().getName ();
     this.processor = getInstance (instructionSet, InstructionProcessor.class);
     this.registry = new InstructionRegistry (getInstanceSet (instructionSet, InstructionFactory.class));
     this.faultHandler = getInstance (instructionSet, FaultHandler.class);
@@ -81,7 +79,7 @@ public class VirtualMachineImpl implements VirtualMachine {
       }
 
       ProgramState state = processor.newProgram (cell);
-      state.setInstructionPointer (cell.getOffset ());
+      state.setInstructionPointer (cell.getOffset (), NOP);
       launch (state);
     } catch (Fault fault) {
       throw new RuntimeException ("", fault);
@@ -125,6 +123,11 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   @Override
+  public Config getConfig () {
+    return config;
+  }
+
+  @Override
   public void kill (long pid) {
     ProgramState p = this.programStates.remove (pid);
     if (p == null)
@@ -147,6 +150,11 @@ public class VirtualMachineImpl implements VirtualMachine {
   @Override
   public HeapReclaimer getReclaimer () {
     return reclaimer;
+  }
+
+  @Override
+  public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
+    return randomizer.getRegisterRandomizer (name);
   }
 
   public <A extends Appendable> A dump (long pid, A out) throws IOException {

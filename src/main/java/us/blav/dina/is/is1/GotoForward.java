@@ -1,8 +1,12 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
-import us.blav.dina.*;
+import us.blav.dina.Fault;
+import us.blav.dina.InstructionFactory;
+import us.blav.dina.InstructionRegistry;
+import us.blav.dina.MemoryHeap;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.is.is1.IS1Randomizers.GOTO;
 
 public class GotoForward implements InstructionFactory {
 
@@ -18,7 +22,7 @@ public class GotoForward implements InstructionFactory {
           MemoryHeap heap = machine.getHeap ();
           for (int offset = state.getInstructionPointer (); offset < heap.size (); offset++) {
             if (heap.get (offset) == opcode) {
-              state.setInstructionPointer (offset);
+              state.setInstructionPointer (offset, machine.getRandomizer (GOTO));
               return;
             }
           }

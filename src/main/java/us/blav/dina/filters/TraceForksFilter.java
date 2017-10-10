@@ -1,7 +1,6 @@
 package us.blav.dina.filters;
 
 import us.blav.dina.*;
-import us.blav.dina.Opcode;
 
 public class TraceForksFilter implements ExecutionFilter {
   @Override
@@ -10,7 +9,7 @@ public class TraceForksFilter implements ExecutionFilter {
       @Override
       public long launch (ProgramState state) {
         long pid = super.launch (state);
-        System.out.printf ("lanuched program %d\n", pid);
+        System.out.printf ("launched program %d\n", pid);
         return pid;
       }
     }, state, opcode);

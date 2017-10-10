@@ -1,11 +1,27 @@
 package us.blav.dina;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import us.blav.dina.is.is1.IS1Randomizers;
+import us.blav.dina.is.is1.ModuleConfig;
+import us.blav.dina.randomizers.NopConfig;
+import us.blav.dina.randomizers.ShuffleConfig;
+
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import static us.blav.dina.Config.DEFAULT;
+import static us.blav.dina.randomizers.ShuffleConfig.Range.BYTE;
 
 public class Main {
-  public static void main (String... args) {
+  public static void main (String... args) throws Exception {
     Config config = new Config ()
-      .setInstructionSet ("is1")
+      .setInstructionSet (new ModuleConfig ()
+        .addRandomizer (IS1Randomizers.FIND, new NopConfig ())
+        .addRandomizer (IS1Randomizers.SUBSTRACT, new ShuffleConfig ().setRange (BYTE))
+        //.addRandomizer (IS1Randomizers.SUBSTRACT, new NopConfig ())
+      )
       .setRandomizer (new Config.Randomizer ()
         .setName (DEFAULT)
         .setSeed (0))
@@ -40,6 +56,13 @@ public class Main {
         "go_backward_to_label0",
         "label0"
       );
+
+    ObjectMapper mapper = new ObjectMapper (new YAMLFactory ()).setDefaultPropertyInclusion (JsonInclude.Include.NON_NULL);
+    StringWriter out = new StringWriter ();
+    mapper.writer ().writeValue (out, config);
+    System.out.println (out.toString ());
+
+    config = mapper.reader ().forType (Config.class).readValue (new StringReader (out.toString ()));
 
     VirtualMachineImpl vm = new VirtualMachineImpl (config);
     vm.start ();

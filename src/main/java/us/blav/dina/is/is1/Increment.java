@@ -1,21 +1,23 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import us.blav.dina.InstructionFactory;
 import us.blav.dina.InstructionRegistry;
-import us.blav.dina.VirtualMachine;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.RegisterRandomizer.NOP;
+import static us.blav.dina.is.is1.IS1Randomizers.INCREMENT;
 
-public class Decrement implements InstructionFactory {
+public class Increment implements InstructionFactory {
+
   @Override
   public void register (InstructionRegistry registry) {
     for (int register = 0; register < 4; register ++) {
       final int fregister = register;
       registry.register (
-        14 << 4 | 2 << 2 | register,
-        String.format ("decrement_r%d", register),
+        14 << 4 | 1 << 2 | register,
+        String.format ("increment_r%d", register),
         (machine, state) -> {
-          state.set (fregister, state.get (fregister) - 1);
+          state.set (fregister, state.get (fregister, NOP) + 1, machine.getRandomizer (INCREMENT));
         },
         auto_increment_ip);
     }

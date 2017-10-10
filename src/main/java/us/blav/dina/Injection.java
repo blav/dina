@@ -1,13 +1,16 @@
 package us.blav.dina;
 
 import com.google.inject.*;
-import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 import us.blav.dina.filters.FiltersModule;
-import us.blav.dina.is1.IS1Module;
+import us.blav.dina.is.is1.IS1Module;
+import us.blav.dina.randomizers.RandomizersModule;
 
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.inject.name.Names.named;
+import static us.blav.dina.Config.DEFAULT;
 
 public class Injection {
 
@@ -16,16 +19,17 @@ public class Injection {
     protected void configure () {
       install (new IS1Module ());
       install (new FiltersModule ());
+      install (new RandomizersModule ());
       bind (MemoryHeap.FACTORY_TYPE)
-        .toInstance (config -> new MemoryHeap (config.getMemory ()));
+        .toInstance (MemoryHeap::new);
 
       bind (Randomizer.FACTORY_TYPE)
-        .annotatedWith (Names.named (Config.DEFAULT))
-        .toInstance (config -> new DefaultRandomizer (config.getRandomizer ().getSeed ()));
+        .annotatedWith (named (DEFAULT))
+        .toInstance (RandomizerDefault::new);
 
       bind (HeapReclaimer.FACTORY_TYPE)
-        .annotatedWith (Names.named (Config.DEFAULT))
-        .toInstance (config -> new HeapReclaimerImpl (config));
+        .annotatedWith (named (DEFAULT))
+        .toInstance (HeapReclaimerImpl::new);
     }
   });
 
@@ -40,7 +44,7 @@ public class Injection {
   }
 
   public static <T> T getInstance (String name, TypeLiteral<T> type) {
-    return getInjector ().getInstance (Key.get (type, Names.named (name)));
+    return getInjector ().getInstance (Key.get (type, named (name)));
   }
 
   public static <T> T getInstance (Class<T> type) {
@@ -48,11 +52,11 @@ public class Injection {
   }
 
   public static <T> T getInstance (String name, Class<T> type) {
-    return getInjector ().getInstance (Key.get (type, Names.named (name)));
+    return getInjector ().getInstance (Key.get (type, named (name)));
   }
 
   public static <T> Set<T> getInstanceSet (String name, Class<T> type) {
-    return (Set<T>) getInjector ().getInstance (Key.get (Types.setOf (type), Names.named (name)));
+    return (Set<T>) getInjector ().getInstance (Key.get (Types.setOf (type), named (name)));
   }
 
   public static <K, V> Map<K, V> getInstanceMap (Class<K> key, Class<V> value) {

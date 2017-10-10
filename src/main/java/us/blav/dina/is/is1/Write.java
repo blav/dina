@@ -1,8 +1,9 @@
-package us.blav.dina.is1;
+package us.blav.dina.is.is1;
 
 import us.blav.dina.*;
 
 import static us.blav.dina.InstructionProcessor.Decorator.auto_increment_ip;
+import static us.blav.dina.is.is1.IS1Randomizers.WRITE;
 
 public class Write implements InstructionFactory {
 
@@ -17,11 +18,11 @@ public class Write implements InstructionFactory {
           String.format ("write_r%d_at_r%d", fvalue, faddress),
           (machine, state) -> {
             MemoryHeap heap = machine.getHeap ();
-            int v = state.get (fvalue);
+            int v = state.get (fvalue, RegisterRandomizer.NOP);
             if (v >> 8 > 0)
               throw new Fault ();
 
-            int vaddress = state.get (faddress);
+            int vaddress = state.get (faddress, machine.getRandomizer (WRITE));
             boolean ok = state.getCell ().contains (vaddress);
             if (ok == false && state.getChild () != null)
               ok = state.getChild ().contains (vaddress);

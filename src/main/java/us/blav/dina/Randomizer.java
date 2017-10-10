@@ -8,4 +8,10 @@ public interface Randomizer {
 
   boolean nextBoolean ();
 
+  int nextInt ();
+
+  default RegisterRandomizer<?> getRegisterRandomizer (RegisterRandomizer.Name name)  {
+    return RegisterRandomizer.NOP;
+  }
+
 }
