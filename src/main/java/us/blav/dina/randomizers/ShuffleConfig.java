@@ -10,7 +10,7 @@ public class ShuffleConfig extends RegisterRandomizerConfig {
     BYTE {
       @Override
       public int range (VirtualMachine machine) {
-        return 0x100;
+        return machine.getConfig ().getInstructionSet ().getInstructionsCount ();
       }
     },
     ADDRESS {

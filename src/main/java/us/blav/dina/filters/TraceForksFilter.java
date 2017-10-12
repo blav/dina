@@ -9,7 +9,7 @@ public class TraceForksFilter implements ExecutionFilter {
       @Override
       public long launch (ProgramState state) {
         long pid = super.launch (state);
-        System.out.printf ("launched program %d\n", pid);
+        System.out.printf ("launched program %d - size=%d\n", pid, state.getCell ().getSize ());
         return pid;
       }
     }, state, opcode);

@@ -12,6 +12,7 @@ public enum IS1Randomizers implements RegisterRandomizer.Name {
   GOTO,
   IF,
   INCREMENT,
+  LABEL,
   READ,
   SUBSTRACT,
   WRITE

@@ -11,11 +11,6 @@ public class VirtualMachineDecorator implements VirtualMachine {
   }
 
   @Override
-  public InstructionProcessor getProcessor () {
-    return machine.getProcessor ();
-  }
-
-  @Override
   public MemoryHeap getHeap () {
     return machine.getHeap ();
   }
@@ -28,11 +23,6 @@ public class VirtualMachineDecorator implements VirtualMachine {
   @Override
   public long launch (ProgramState state) {
     return machine.launch (state);
-  }
-
-  @Override
-  public FaultHandler getFaultHandler () {
-    return machine.getFaultHandler ();
   }
 
   @Override

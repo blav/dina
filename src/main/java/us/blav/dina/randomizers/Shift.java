@@ -4,11 +4,11 @@ import us.blav.dina.ProgramState;
 import us.blav.dina.Randomizer;
 import us.blav.dina.VirtualMachine;
 
-public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
+public class Shift extends AbstractRegisterRandomizer<ShiftConfig> {
 
-  public static final Factory<ShuffleConfig> FACTORY = Shuffle::new;
+  public static final Factory<ShiftConfig> FACTORY = Shift::new;
 
-  public Shuffle (VirtualMachine machine, ShuffleConfig config) {
+  public Shift (VirtualMachine machine, ShiftConfig config) {
     super (machine, config);
   }
 
@@ -16,10 +16,11 @@ public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
   public int randomizeValue (ProgramState state, int value) {
     Randomizer randomizer = getMachine ().getRandomizer ();
     int i = randomizer.nextInt () % getConfig ().getProbability ();
+    int v = getConfig ().getValue ();
     if (i != 0) {
       return value;
     } else {
-      return randomizer.nextInt () % getConfig ().getRange ().range (getMachine ());
+      return value + randomizer.nextInt () * v * 2 - v;
     }
   }
 }

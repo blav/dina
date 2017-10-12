@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
-import static us.blav.dina.Injection.*;
+import static us.blav.dina.Injection.getInstance;
+import static us.blav.dina.Injection.getInstanceMap;
 import static us.blav.dina.MemoryHeap.Direction.right;
 import static us.blav.dina.RegisterRandomizer.NOP;
 
@@ -12,15 +13,11 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final MemoryHeap heap;
 
-  private final InstructionProcessor processor;
-
   private final Randomizer randomizer;
 
   private final InstructionRegistry registry;
 
   private final Map<Long, ProgramState> programStates;
-
-  private final FaultHandler faultHandler;
 
   private final Config config;
 
@@ -53,15 +50,15 @@ public class VirtualMachineImpl implements VirtualMachine {
     }
 
     String instructionSet = config.getInstructionSet ().getName ();
-    this.processor = getInstance (instructionSet, InstructionProcessor.class);
-    this.registry = new InstructionRegistry (getInstanceSet (instructionSet, InstructionFactory.class));
-    this.faultHandler = getInstance (instructionSet, FaultHandler.class);
+    this.registry = new InstructionRegistry ();
+    this.config.getInstructionSet ().registerInstructions (this.registry);
 
     this.boostrap ();
   }
 
   private void boostrap () {
     List<String> boostrap = config.getBootstrapCode ();
+    System.out.printf ("bootstrap is %d bytes\n", new HashSet<> (boostrap).size ());
     try {
       int size = boostrap.size ();
       MemoryHeap.Cell first = this.heap.getFirst ();
@@ -78,7 +75,7 @@ public class VirtualMachineImpl implements VirtualMachine {
         heap.set (cell.getOffset () + i, opcode);
       }
 
-      ProgramState state = processor.newProgram (cell);
+      ProgramState state = new ProgramState (cell, config.getInstructionSet ().getRegisters ());;
       state.setInstructionPointer (cell.getOffset (), NOP);
       launch (state);
     } catch (Fault fault) {
@@ -92,11 +89,6 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   @Override
-  public InstructionProcessor getProcessor () {
-    return processor;
-  }
-
-  @Override
   public MemoryHeap getHeap () {
     return heap;
   }
@@ -104,11 +96,6 @@ public class VirtualMachineImpl implements VirtualMachine {
   @Override
   public Randomizer getRandomizer () {
     return randomizer;
-  }
-
-  @Override
-  public FaultHandler getFaultHandler () {
-    return faultHandler;
   }
 
   @Override

@@ -6,13 +6,9 @@ public interface VirtualMachine {
 
   Config getConfig ();
 
-  InstructionProcessor getProcessor ();
-
   MemoryHeap getHeap ();
 
   Randomizer getRandomizer ();
-
-  FaultHandler getFaultHandler ();
 
   long launch (ProgramState state);
 

@@ -33,5 +33,7 @@ public class RandomizersModule extends AbstractModule {
 
     map.addBinding (NopConfig.class).toInstance (Nop.FACTORY);
     map.addBinding (ShuffleConfig.class).toInstance (Shuffle.FACTORY);
+    map.addBinding (BitFlipConfig.class).toInstance (BitFlip.FACTORY);
+    map.addBinding (ShiftConfig.class).toInstance (Shift.FACTORY);
   }
 }

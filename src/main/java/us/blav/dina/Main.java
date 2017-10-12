@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import us.blav.dina.is.is1.IS1Randomizers;
 import us.blav.dina.is.is1.ModuleConfig;
+import us.blav.dina.randomizers.BitFlipConfig;
 import us.blav.dina.randomizers.NopConfig;
+import us.blav.dina.randomizers.ShiftConfig;
 import us.blav.dina.randomizers.ShuffleConfig;
 
 import java.io.StringReader;
@@ -18,8 +20,10 @@ public class Main {
   public static void main (String... args) throws Exception {
     Config config = new Config ()
       .setInstructionSet (new ModuleConfig ()
-        .addRandomizer (IS1Randomizers.FIND, new NopConfig ())
-        .addRandomizer (IS1Randomizers.SUBSTRACT, new ShuffleConfig ().setRange (BYTE))
+        .addRandomizer (IS1Randomizers.WRITE, new ShuffleConfig ().setProbability (300).setRange (BYTE))
+        //.addRandomizer (IS1Randomizers.GOTO, new NopConfig ())
+        //.addRandomizer (IS1Randomizers.SUBSTRACT, new ShiftConfig ()
+        //  .setProbability (200))
         //.addRandomizer (IS1Randomizers.SUBSTRACT, new NopConfig ())
       )
       .setRandomizer (new Config.Randomizer ()

@@ -2,22 +2,26 @@ package us.blav.dina;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.IntStream.range;
+
 public class InstructionRegistry {
+
+  private final TreeSet<Integer> availableOpcodes;
 
   private final Map<Integer, Opcode> opcodes;
 
   private final Map<String, Opcode> symbols;
 
-  public InstructionRegistry (Collection<? extends InstructionFactory> factories) {
+  public InstructionRegistry () {
     this.opcodes = new HashMap<> ();
     this.symbols = new HashMap<> ();
-    factories.stream ().forEach (f -> f.register (this));
+    this.availableOpcodes = new TreeSet<> (range (0, 256).boxed ().collect (toSet ()));
   }
 
   public Opcode getInstruction (VirtualMachine machine, int opcode) {
     return Optional.ofNullable (opcodes.get (opcode))
-      .orElseGet (() -> new Opcode (
-        machine.getProcessor ().newUnknownIntruction (opcode), opcode, "unknown" + opcode));
+      .orElseGet (() -> new Opcode (newUnknownIntruction (opcode), opcode, "unknown" + opcode));
   }
 
   public Opcode getInstruction (String symbol) {
@@ -29,10 +33,12 @@ public class InstructionRegistry {
     return getInstruction (symbol).getOpcode ();
   }
 
-  public void register (int opcode, String symbol, Instruction instruction, InstructionProcessor.Decorator... flags) {
-    for (InstructionProcessor.Decorator flag : flags)
-      instruction = flag.decorate (instruction);
+  public void register (String symbol, Instruction instruction) {
+    Integer opcode = this.availableOpcodes.pollFirst ();
+    if (opcode == null)
+      throw new IllegalStateException ("registry full");
 
+    instruction = new AutoIncrementIPDecorator (instruction);
     Opcode i = new Opcode (instruction, opcode, symbol);
     if (this.opcodes.put (opcode, i) != null)
       throw new IllegalStateException ();
@@ -41,4 +47,8 @@ public class InstructionRegistry {
       throw new IllegalStateException ();
   }
 
+  private Instruction newUnknownIntruction (int opcode) {
+    return (machine, state) -> {
+    };
+  }
 }

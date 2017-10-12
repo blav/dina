@@ -139,7 +139,7 @@ public class MemoryHeap {
     }
 
     public Cell split (Direction direction, int size, EnergyTracker tracker) throws Fault {
-      if (size > this.size)
+      if (size <= 0 || size > this.size)
         throw new Fault ();
 
       available -= size;

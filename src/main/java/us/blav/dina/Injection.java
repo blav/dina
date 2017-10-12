@@ -3,7 +3,6 @@ package us.blav.dina;
 import com.google.inject.*;
 import com.google.inject.util.Types;
 import us.blav.dina.filters.FiltersModule;
-import us.blav.dina.is.is1.IS1Module;
 import us.blav.dina.randomizers.RandomizersModule;
 
 import java.util.Map;
@@ -17,7 +16,6 @@ public class Injection {
   private final Injector injector = Guice.createInjector (new AbstractModule () {
     @Override
     protected void configure () {
-      install (new IS1Module ());
       install (new FiltersModule ());
       install (new RandomizersModule ());
       bind (MemoryHeap.FACTORY_TYPE)

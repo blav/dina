@@ -24,7 +24,7 @@ public class ExecutionChainImpl implements ExecutionChain {
       try {
         instruction.getInstruction ().process (machin, state);
       } catch (Fault fault) {
-        machin.getFaultHandler ().handleFault (fault, state);
+        state.incrementFaults ();
       }
     });
   }
