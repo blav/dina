@@ -20,7 +20,7 @@ public class Main {
   public static void main (String... args) throws Exception {
     Config config = new Config ()
       .setInstructionSet (new ModuleConfig ()
-        .addRandomizer (IS1Randomizers.WRITE, new ShuffleConfig ().setProbability (300).setRange (BYTE))
+        .addRandomizer (IS1Randomizers.WRITE, new ShuffleConfig ().setProbability (100).setRange (BYTE))
         //.addRandomizer (IS1Randomizers.GOTO, new NopConfig ())
         //.addRandomizer (IS1Randomizers.SUBSTRACT, new ShiftConfig ()
         //  .setProbability (200))
@@ -31,13 +31,16 @@ public class Main {
         .setSeed (0))
       .setReclaimer (new Config.Reclaimer ()
         .setName (DEFAULT)
-        .setThresholdHigh (.7)
-        .setThresholdLow (.5)
+        .setThresholdHigh (.75)
+        .setThresholdLow (.7)
       )
       .setMemory (100000)
       .addExecutionFilters (
         "trace-forks"
         //, "trace-instructions"
+      )
+      .addReclaimerFilters (
+        "trace-reclaims"
       )
       .addBoostrapCode (
         "label0",

@@ -16,8 +16,6 @@ public interface VirtualMachine {
 
   Collection<Program> getPrograms ();
 
-  HeapReclaimer getReclaimer ();
-
   RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name);
 
 }

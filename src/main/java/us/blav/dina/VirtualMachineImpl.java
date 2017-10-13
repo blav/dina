@@ -1,5 +1,7 @@
 package us.blav.dina;
 
+import us.blav.dina.Chain.Filter;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -21,9 +23,9 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final Config config;
 
-  private final ExecutionChainImpl execution;
-
-  private final HeapReclaimer reclaimer;
+  private final Chain<ExecutionStep> execution;
+  
+  private final Chain<List<Program>> reclaim;
 
   private long programIdGenerator;
 
@@ -33,21 +35,28 @@ public class VirtualMachineImpl implements VirtualMachine {
     this.config = config;
     this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (this);
     this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (this);
-    this.reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
     this.programStates = new HashMap<> ();
-    this.execution = new ExecutionChainImpl (this);
+    this.execution = new Chain<> (this);
+    this.execution.install ((chain, machine, step) -> {
+      try {
+        step.getOpcode ().getInstruction ().process (machine, step.getState ());
+      } catch (Fault fault) {
+        step.getState ().incrementFaults ();
+      }
+    });
+
+    this.execution.installAll (ExecutionStep.FILTER_TYPE, config.getExecutionFilters ());
+
+    HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
+    this.reclaim = new Chain<> (this);
+    this.reclaim.install (((chain, machine, programs) -> {
+      programs.addAll (reclaimer.reclaim (machine));
+    }));
+
+    this.reclaim.installAll (HeapReclaimer.FILTER_TYPE, config.getReclaimerFilters ());
+
     this.tracker = amount -> {
     };
-
-    Map<String, ExecutionFilter> filterMap = getInstanceMap (String.class, ExecutionFilter.class);
-    for (String filter : config.getExecutionFilters ()) {
-      ExecutionFilter f = filterMap.get (filter);
-      if (f == null) {
-        throw new NoSuchElementException (filter);
-      } else {
-        this.execution.install (f);
-      }
-    }
 
     String instructionSet = config.getInstructionSet ().getName ();
     this.registry = new InstructionRegistry ();
@@ -84,8 +93,18 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   private void process (ProgramState state) {
-    execution.next (this, state,
-      this.registry.getInstruction (this, this.heap.get (state.getInstructionPointer ())));
+    Opcode opcode = this.registry.getInstruction (this, this.heap.get (state.getInstructionPointer ()));
+    execution.next (this, new ExecutionStep () {
+        @Override
+        public Opcode getOpcode () {
+          return opcode;
+        }
+
+        @Override
+        public ProgramState getState () {
+          return state;
+        }
+      });
   }
 
   @Override
@@ -135,11 +154,6 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   @Override
-  public HeapReclaimer getReclaimer () {
-    return reclaimer;
-  }
-
-  @Override
   public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
     return randomizer.getRegisterRandomizer (name);
   }
@@ -166,7 +180,9 @@ public class VirtualMachineImpl implements VirtualMachine {
       for (Map.Entry<Long, ProgramState> state : new ArrayList<> (programStates.entrySet ()))
         process (state.getValue ());
 
-      for (Program program : getReclaimer ().reclaim (this))
+      ArrayList<Program> programs = new ArrayList<> ();
+      reclaim.next (this, programs);
+      for (Program program : programs)
         kill (program.getId ());
     }
   }

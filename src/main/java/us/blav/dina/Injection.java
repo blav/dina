@@ -5,6 +5,7 @@ import com.google.inject.util.Types;
 import us.blav.dina.filters.FiltersModule;
 import us.blav.dina.randomizers.RandomizersModule;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,5 +60,9 @@ public class Injection {
 
   public static <K, V> Map<K, V> getInstanceMap (Class<K> key, Class<V> value) {
     return (Map<K, V>) getInjector ().getInstance (Key.get (Types.mapOf (key, value)));
+  }
+
+  public static <K, V> Map<K, V> getInstanceMap (TypeLiteral<K> key, TypeLiteral<V> value) {
+    return (Map<K, V>) getInjector ().getInstance (Key.get (Types.mapOf (key.getType (), value.getType ())));
   }
 }

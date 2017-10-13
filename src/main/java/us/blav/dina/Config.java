@@ -1,10 +1,11 @@
 package us.blav.dina;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.inject.TypeLiteral;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
+import static us.blav.dina.Injection.getInstanceMap;
 
 public class Config {
 
@@ -13,6 +14,7 @@ public class Config {
   public Config () {
     this.bootstrapCode = new ArrayList<> ();
     this.executionFilters = new ArrayList<> ();
+    this.reclaimerFilters = new ArrayList<> ();
     this.randomizer = new Randomizer ().setName (DEFAULT).setSeed (0);
     this.reclaimer = new Reclaimer ().setThresholdLow (.6).setThresholdHigh (.9);
   }
@@ -136,6 +138,15 @@ public class Config {
     return this;
   }
 
+  public List<String> getReclaimerFilters () {
+    return reclaimerFilters;
+  }
+
+  public Config addReclaimerFilters (String... filters) {
+    this.reclaimerFilters.addAll (Arrays.asList (filters));
+    return this;
+  }
+
   @JsonProperty("randomizer")
   private Randomizer randomizer;
 
@@ -153,5 +164,8 @@ public class Config {
 
   @JsonProperty("execution-filters")
   private final List<String> executionFilters;
+
+  @JsonProperty("reclaimer-filters")
+  private final List<String> reclaimerFilters;
 
 }

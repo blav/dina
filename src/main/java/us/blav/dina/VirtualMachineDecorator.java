@@ -36,11 +36,6 @@ public class VirtualMachineDecorator implements VirtualMachine {
   }
 
   @Override
-  public HeapReclaimer getReclaimer () {
-    return machine.getReclaimer ();
-  }
-
-  @Override
   public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
     return machine.getRandomizer (name);
   }
