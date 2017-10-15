@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import static us.blav.dina.is.is1.IS1Randomizers.*;
 
-public class ModuleConfig extends InstructionSetConfig<IS1Randomizers> {
+public class IS1Config extends InstructionSetConfig<IS1Randomizers> {
 
   private static final InstructionFactory[] INSTRUCTIONS = {
     new Label (LABEL, 0),
@@ -32,8 +32,8 @@ public class ModuleConfig extends InstructionSetConfig<IS1Randomizers> {
     new GotoBackward (GOTO, 0)
   };
 
-  public ModuleConfig () {
-    super (IS1Randomizers.class, "is1", 4);
+  public IS1Config () {
+    super (IS1Randomizers.class, 4);
   }
 
   @Override

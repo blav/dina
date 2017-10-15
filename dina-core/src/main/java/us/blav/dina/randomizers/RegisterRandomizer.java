@@ -21,4 +21,12 @@ public interface RegisterRandomizer<CONF extends RegisterRandomizerConfig> {
 
   }
 
+  interface RegistryBuilder {
+
+    <CONF extends RegisterRandomizerConfig> RegistryBuilder registerRandomizer (String typeId, Class<CONF> configClass, RegisterRandomizer.Factory<CONF> factory);
+
+    void done ();
+
+  }
+
 }

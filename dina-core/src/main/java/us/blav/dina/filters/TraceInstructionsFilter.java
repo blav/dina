@@ -1,6 +1,8 @@
 package us.blav.dina.filters;
 
-import us.blav.dina.*;
+import us.blav.commons.Chain;
+import us.blav.dina.ExecutionStep;
+import us.blav.dina.ProgramState;
 
 import java.util.stream.IntStream;
 
@@ -9,9 +11,9 @@ import static java.util.stream.Collectors.joining;
 
 public class TraceInstructionsFilter implements Chain.Filter<ExecutionStep> {
   @Override
-  public void next (Chain<ExecutionStep> chain, VirtualMachine machine, ExecutionStep step) {
+  public void next (Chain<ExecutionStep> chain, ExecutionStep step) {
     try {
-      chain.next (machine, step);
+      chain.next (step);
     } finally {
       ProgramState state = step.getState ();
       System.out.printf ("%08d %-30s ip=%08d  regs=%s\n",

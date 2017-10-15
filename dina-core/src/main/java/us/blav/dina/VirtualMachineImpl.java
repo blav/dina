@@ -1,13 +1,12 @@
 package us.blav.dina;
 
+import us.blav.commons.Chain;
 import us.blav.dina.randomizers.RegisterRandomizer;
 
 import java.io.IOException;
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
-import static us.blav.dina.Injection.getInstance;
-import static us.blav.dina.Injection.getInstanceMap;
+import static us.blav.commons.Injector.getInstance;
 import static us.blav.dina.MemoryHeap.Direction.right;
 import static us.blav.dina.randomizers.RegisterRandomizer.NOP;
 
@@ -25,7 +24,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final Chain<ExecutionStep> execution;
 
-  private final Chain<List<Program>> reclaim;
+  private final Chain<Reclaim> reclaim;
 
   private long programIdGenerator;
 
@@ -36,10 +35,10 @@ public class VirtualMachineImpl implements VirtualMachine {
     this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (this);
     this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (this);
     this.programStates = new HashMap<> ();
-    this.execution = new Chain<> (ExecutionStep.FILTER_TYPE, this);
-    this.execution.install ((chain, machine, step) -> {
+    this.execution = new Chain<> (ExecutionStep.FILTER_TYPE);
+    this.execution.install ((chain, step) -> {
       try {
-        step.getOpcode ().getInstruction ().process (machine, step.getState ());
+        step.getOpcode ().getInstruction ().process (step.getMachine (), step.getState ());
       } catch (Fault fault) {
         step.getState ().incrementFaults ();
       }
@@ -48,9 +47,9 @@ public class VirtualMachineImpl implements VirtualMachine {
     this.execution.installAll (config.getExecutionFilters ());
 
     HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
-    this.reclaim = new Chain<> (HeapReclaimer.FILTER_TYPE, this);
-    this.reclaim.install (((chain, machine, programs) -> {
-      programs.addAll (reclaimer.reclaim (machine));
+    this.reclaim = new Chain<> (HeapReclaimer.FILTER_TYPE);
+    this.reclaim.install (((chain, reclaim) -> {
+      reclaim.getReclaimList ().addAll (reclaimer.reclaim (reclaim.getMachine ()));
     }));
 
     this.reclaim.installAll (config.getReclaimerFilters ());
@@ -94,7 +93,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private void process (ProgramState state) {
     Opcode opcode = this.registry.getInstruction (this.heap.get (state.getInstructionPointer ()));
-    execution.next (this, new ExecutionStep () {
+    execution.next (new ExecutionStep () {
       @Override
       public Opcode getOpcode () {
         return opcode;
@@ -103,6 +102,11 @@ public class VirtualMachineImpl implements VirtualMachine {
       @Override
       public ProgramState getState () {
         return state;
+      }
+
+      @Override
+      public VirtualMachine getMachine () {
+        return VirtualMachineImpl.this;
       }
     });
   }
@@ -181,7 +185,18 @@ public class VirtualMachineImpl implements VirtualMachine {
         process (state.getValue ());
 
       ArrayList<Program> programs = new ArrayList<> ();
-      reclaim.next (this, programs);
+      reclaim.next (new Reclaim () {
+        @Override
+        public VirtualMachine getMachine () {
+          return VirtualMachineImpl.this;
+        }
+
+        @Override
+        public List<Program> getReclaimList () {
+          return programs;
+        }
+      });
+
       for (Program program : programs)
         kill (program.getId ());
     }

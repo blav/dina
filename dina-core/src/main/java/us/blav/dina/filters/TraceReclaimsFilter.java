@@ -1,16 +1,14 @@
 package us.blav.dina.filters;
 
-import us.blav.dina.Chain;
-import us.blav.dina.Program;
-import us.blav.dina.VirtualMachine;
+import us.blav.commons.Chain;
+import us.blav.dina.Reclaim;
 
-import java.util.List;
-
-public class TraceReclaimsFilter implements Chain.Filter<List<Program>> {
+public class TraceReclaimsFilter implements Chain.Filter<Reclaim> {
   @Override
-  public void next (Chain<List<Program>> chain, VirtualMachine machine, List<Program> programs) {
-    chain.next (machine, programs);
-    if (programs.size () > 0)
-      System.out.printf ("reclaimed %d programs\n", programs.size ());
+  public void next (Chain<Reclaim> chain, Reclaim reclaim) {
+    chain.next (reclaim);
+    int size = reclaim.getReclaimList ().size ();
+    if (size > 0)
+      System.out.printf ("reclaimed %d reclaim\n", size);
   }
 }

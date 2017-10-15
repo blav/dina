@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import us.blav.dina.randomizers.RandomizersModule;
+import com.google.inject.TypeLiteral;
 import us.blav.dina.randomizers.RegisterRandomizer;
+import us.blav.dina.randomizers.RegisterRandomizer.Name;
 import us.blav.dina.randomizers.RegisterRandomizerConfig;
+import us.blav.dina.randomizers.RegisterRandomizerRegistry;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,12 +17,15 @@ import java.util.Map;
 import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static us.blav.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 import static us.blav.dina.randomizers.NopConfig.INSTANCE;
+import static us.blav.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonTypeIdResolver (InstructionSetTypeResolver.class)
-public abstract class InstructionSetConfig<NAME extends RegisterRandomizer.Name> {
+@JsonTypeIdResolver (InstructionSetConfigTypeResolver.class)
+public abstract class InstructionSetConfig<NAME extends Name> {
+
+  public static final TypeLiteral<InstructionSetConfig<? extends Name>> TYPE =
+    new TypeLiteral<InstructionSetConfig<? extends Name>> () {};
 
   @JsonProperty("randomizers")
   private final Map<String, RegisterRandomizerConfig> registerRandomizers;
@@ -28,21 +33,13 @@ public abstract class InstructionSetConfig<NAME extends RegisterRandomizer.Name>
   @JsonIgnore
   private final Class<NAME> registerRandomizerClass;
 
-  private final String name;
-
   @JsonIgnore
   private final int registers;
 
-  protected InstructionSetConfig (Class<NAME> registerRandomizerClass, String name, int registers) {
+  protected InstructionSetConfig (Class<NAME> registerRandomizerClass, int registers) {
     this.registerRandomizerClass = registerRandomizerClass;
-    this.name = name;
     this.registers = registers;
     this.registerRandomizers = new HashMap<> ();
-  }
-
-  @JsonIgnore
-  public String getName () {
-    return name;
   }
 
   public InstructionSetConfig addRandomizer (NAME name, RegisterRandomizerConfig randomizer) {
@@ -50,10 +47,11 @@ public abstract class InstructionSetConfig<NAME extends RegisterRandomizer.Name>
     return this;
   }
 
-  public Map<? extends RegisterRandomizer.Name, ? extends RegisterRandomizer> createRandomizers (VirtualMachine machine) {
+  public Map<? extends Name, ? extends RegisterRandomizer> createRandomizers (VirtualMachine machine) {
     Map<NAME, RegisterRandomizer<?>> configs = new HashMap<> ();
     Map<String, ? extends RegisterRandomizerConfig> copy = new HashMap<> (this.registerRandomizers);
-    Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<?>> registry = RandomizersModule.createRandomizers ();
+    Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<?>>
+      registry = RegisterRandomizerRegistry.createRandomizers ();
 
     for (NAME n : getNames ()) {
       RegisterRandomizerConfig config = copy.remove (n.name ());

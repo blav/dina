@@ -1,7 +1,7 @@
 package us.blav.dina;
 
 import com.google.inject.TypeLiteral;
-import us.blav.dina.Chain.Filter;
+import us.blav.commons.Chain.Filter;
 
 public interface ExecutionStep {
 
@@ -10,5 +10,7 @@ public interface ExecutionStep {
   Opcode getOpcode ();
 
   ProgramState getState ();
+
+  VirtualMachine getMachine ();
 
 }

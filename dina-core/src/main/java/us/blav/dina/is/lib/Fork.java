@@ -1,6 +1,8 @@
 package us.blav.dina.is.lib;
 
-import us.blav.dina.*;
+import us.blav.dina.Fault;
+import us.blav.dina.InstructionRegistry;
+import us.blav.dina.ProgramState;
 import us.blav.dina.randomizers.RegisterRandomizer;
 
 import static java.util.Optional.ofNullable;

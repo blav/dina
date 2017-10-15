@@ -15,7 +15,11 @@
   <packaging>jar</packaging>
 
   <dependencies>
-
+    <dependency>
+      <groupId>us.blav</groupId>
+      <artifactId>commons</artifactId>
+      <version>${dina.version}</version>
+    </dependency>
     <!-- junit -->
     <dependency>
       <groupId>junit</groupId>

@@ -3,11 +3,8 @@ package us.blav.dina;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import us.blav.dina.is.is1.IS1Config;
 import us.blav.dina.is.is1.IS1Randomizers;
-import us.blav.dina.is.is1.ModuleConfig;
-import us.blav.dina.randomizers.BitFlipConfig;
-import us.blav.dina.randomizers.NopConfig;
-import us.blav.dina.randomizers.ShiftConfig;
 import us.blav.dina.randomizers.ShuffleConfig;
 
 import java.io.StringReader;
@@ -19,7 +16,7 @@ import static us.blav.dina.randomizers.ShuffleConfig.Range.BYTE;
 public class Main {
   public static void main (String... args) throws Exception {
     Config config = new Config ()
-      .setInstructionSet (new ModuleConfig ()
+      .setInstructionSet (new IS1Config ()
         .addRandomizer (IS1Randomizers.WRITE, new ShuffleConfig ().setProbability (100).setRange (BYTE))
         //.addRandomizer (IS1Randomizers.GOTO, new NopConfig ())
         //.addRandomizer (IS1Randomizers.SUBSTRACT, new ShiftConfig ()

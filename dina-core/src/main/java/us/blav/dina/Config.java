@@ -1,11 +1,10 @@
 package us.blav.dina;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.inject.TypeLiteral;
 
-import java.util.*;
-
-import static us.blav.dina.Injection.getInstanceMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Config {
 
