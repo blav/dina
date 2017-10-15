@@ -1,3 +1,6 @@
 .idea/*
-dina.iml
+*.iml
+*/*.iml
 target/*
+*/target/
+*/target/*
