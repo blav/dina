@@ -20,7 +20,7 @@ public class Shift extends AbstractRegisterRandomizer<ShiftConfig> {
     if (i != 0) {
       return value;
     } else {
-      return value + randomizer.nextInt () * v * 2 - v;
+      return value + (randomizer.nextInt () % ((v + 1) * 2)) - v;
     }
   }
 }

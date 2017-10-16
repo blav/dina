@@ -22,10 +22,10 @@ import static us.blav.dina.randomizers.RegisterRandomizerConfig.createRandomizer
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonTypeIdResolver (InstructionSetConfigTypeResolver.class)
-public abstract class InstructionSetConfig<NAME extends Name> {
+public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig<THISTYPE, NAME>, NAME extends Name> {
 
-  public static final TypeLiteral<InstructionSetConfig<? extends Name>> TYPE =
-    new TypeLiteral<InstructionSetConfig<? extends Name>> () {};
+  public static final TypeLiteral<InstructionSetConfig<? extends InstructionSetConfig<?, ?>, ? extends Name>> TYPE =
+    new TypeLiteral<InstructionSetConfig<? extends InstructionSetConfig<?, ?>, ? extends Name>> () {};
 
   @JsonProperty("randomizers")
   private final Map<String, RegisterRandomizerConfig> registerRandomizers;
@@ -42,9 +42,13 @@ public abstract class InstructionSetConfig<NAME extends Name> {
     this.registerRandomizers = new HashMap<> ();
   }
 
-  public InstructionSetConfig addRandomizer (NAME name, RegisterRandomizerConfig randomizer) {
+  public THISTYPE addRandomizer (NAME name, RegisterRandomizerConfig randomizer) {
     this.registerRandomizers.put (name.name (), randomizer);
-    return this;
+    return cast ();
+  }
+
+  protected THISTYPE cast () {
+    return (THISTYPE) this;
   }
 
   public Map<? extends Name, ? extends RegisterRandomizer> createRandomizers (VirtualMachine machine) {

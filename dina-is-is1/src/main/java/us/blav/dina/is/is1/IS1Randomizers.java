@@ -4,6 +4,7 @@ import us.blav.dina.randomizers.RegisterRandomizer;
 
 public enum IS1Randomizers implements RegisterRandomizer.Name {
 
+  NOP,
   ADD,
   ALLOC,
   DECREMENT,

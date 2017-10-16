@@ -58,7 +58,7 @@ public class MapTypeResolver<TYPE> implements TypeIdResolver {
         MapBinder<String, Class<? extends TYPE>> mb =
           newMapBinder (binder, TypeLiteral.get (String.class), newClassTypeLiteral (baseType));
 
-        map.entrySet ().forEach (e -> mb.addBinding (e.getKey ()).toInstance (e.getValue ()));
+        map.forEach ((k, v) -> mb.addBinding (k).toInstance (v));
       }
     };
   }

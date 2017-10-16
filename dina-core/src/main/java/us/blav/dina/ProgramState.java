@@ -12,7 +12,7 @@ public class ProgramState implements EnergyTracker, Program {
 
   private int instructionPointer;
 
-  private long id;
+  private int id;
 
   public ProgramState (MemoryHeap.Cell cell, int registers) {
     this.cell = cell;
@@ -50,11 +50,11 @@ public class ProgramState implements EnergyTracker, Program {
   }
 
   @Override
-  public long getId () {
+  public int getId () {
     return id;
   }
 
-  public void setId (long id) {
+  public void setId (int id) {
     this.id = id;
   }
 

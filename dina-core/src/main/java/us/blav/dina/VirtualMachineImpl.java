@@ -1,10 +1,13 @@
 package us.blav.dina;
 
+import com.google.inject.TypeLiteral;
 import us.blav.commons.Chain;
+import us.blav.commons.Chain.Filter;
 import us.blav.dina.randomizers.RegisterRandomizer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static us.blav.commons.Injector.getInstance;
 import static us.blav.dina.MemoryHeap.Direction.right;
@@ -18,7 +21,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final InstructionRegistry registry;
 
-  private final Map<Long, ProgramState> programStates;
+  private final Map<Integer, ProgramState> programStates;
 
   private final Config config;
 
@@ -26,7 +29,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private final Chain<Reclaim> reclaim;
 
-  private long programIdGenerator;
+  private int programIdGenerator;
 
   private EnergyTracker tracker;
 
@@ -47,7 +50,7 @@ public class VirtualMachineImpl implements VirtualMachine {
     this.execution.installAll (config.getExecutionFilters ());
 
     HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
-    this.reclaim = new Chain<> (HeapReclaimer.FILTER_TYPE);
+    this.reclaim = new Chain<> (Reclaim.FILTER_TYPE);
     this.reclaim.install (((chain, reclaim) -> {
       reclaim.getReclaimList ().addAll (reclaimer.reclaim (reclaim.getMachine ()));
     }));
@@ -65,7 +68,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private void boostrap () {
     List<String> boostrap = config.getBootstrapCode ();
-    System.out.printf ("bootstrap is %d bytes\n", new HashSet<> (boostrap).size ());
+    System.out.printf ("bootstrap is %d bytes\n", boostrap.size ());
     try {
       int size = boostrap.size ();
       MemoryHeap.Cell first = this.heap.getFirst ();
@@ -83,7 +86,6 @@ public class VirtualMachineImpl implements VirtualMachine {
       }
 
       ProgramState state = new ProgramState (cell, config.getInstructionSet ().getRegisters ());
-      ;
       state.setInstructionPointer (cell.getOffset (), NOP);
       launch (state);
     } catch (Fault fault) {
@@ -126,7 +128,7 @@ public class VirtualMachineImpl implements VirtualMachine {
     if (state == null)
       throw new NullPointerException ();
 
-    long pid = this.programIdGenerator++;
+    int pid = this.programIdGenerator++;
     this.programStates.put (pid, state);
     state.setId (pid);
     return pid;
@@ -138,7 +140,7 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   @Override
-  public void kill (long pid) {
+  public void kill (int pid) {
     ProgramState p = this.programStates.remove (pid);
     if (p == null)
       throw new IllegalStateException ("no such pid " + pid);
@@ -158,47 +160,56 @@ public class VirtualMachineImpl implements VirtualMachine {
   }
 
   @Override
+  public ProgramState getProgram (int pid) {
+    return programStates.get (pid);
+  }
+
+  @Override
   public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
     return randomizer.getRegisterRandomizer (name);
   }
 
-  public <A extends Appendable> A dump (long pid, A out) throws IOException {
-    ProgramState state = programStates.get (pid);
-    if (state == null) {
-      out.append (String.format ("no such program %d\n", pid));
-      return out;
-    }
-
-    MemoryHeap.Cell cell = state.getCell ();
-    for (int i = 0; i < cell.getSize (); i++) {
-      int offset = cell.getOffset () + i;
-      out.append (String.format ("%08d %-30s\n", offset, registry.getInstruction (heap.get (offset)).getSymbol ()));
-    }
-
-    return out;
+  @Override
+  public InstructionRegistry getRegistry () {
+    return registry;
   }
 
-  public void start () {
-    while (true) {
-      // copy state list since it can be altered while in the loop
-      for (Map.Entry<Long, ProgramState> state : new ArrayList<> (programStates.entrySet ()))
-        process (state.getValue ());
+  @Override
+  public <TYPE> Chain.Handle install (TypeLiteral<Filter<TYPE>> type, Filter<TYPE> filter) {
+    if (type.equals (ExecutionStep.FILTER_TYPE)) {
+      return execution.install ((Filter<ExecutionStep>) filter);
+    } else if (type.equals (Reclaim.FILTER_TYPE)) {
+      return reclaim.install ((Filter<Reclaim>) filter);
+    } else {
+      throw new IllegalArgumentException ("" + type);
+    }
+  }
 
-      ArrayList<Program> programs = new ArrayList<> ();
-      reclaim.next (new Reclaim () {
-        @Override
-        public VirtualMachine getMachine () {
-          return VirtualMachineImpl.this;
-        }
+  @Override
+  public void update () {
+    // copy state list since it can be altered while in the loop
+    for (Map.Entry<Integer, ProgramState> state : new ArrayList<> (programStates.entrySet ()))
+      process (state.getValue ());
 
-        @Override
-        public List<Program> getReclaimList () {
-          return programs;
-        }
-      });
+    ArrayList<Program> programs = new ArrayList<> ();
+    reclaim.next (new Reclaim () {
+      @Override
+      public VirtualMachine getMachine () {
+        return VirtualMachineImpl.this;
+      }
 
-      for (Program program : programs)
-        kill (program.getId ());
+      @Override
+      public List<Program> getReclaimList () {
+        return programs;
+      }
+    });
+
+    for (Program program : programs) {
+      program.getCell ().bytes ().forEach (i -> getHeap ().set (i , 0));
+      if (program.getChild () != null)
+        program.getChild ().bytes ().forEach (i -> getHeap ().set (i , 0));
+
+      kill (program.getId ());
     }
   }
 }

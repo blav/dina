@@ -27,7 +27,7 @@ public class Chain<IN> {
 
   private int current;
 
-  interface Handle {
+  public interface Handle {
 
     void uninstall ();
 

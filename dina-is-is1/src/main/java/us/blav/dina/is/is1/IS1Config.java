@@ -9,9 +9,10 @@ import java.util.Collection;
 
 import static us.blav.dina.is.is1.IS1Randomizers.*;
 
-public class IS1Config extends InstructionSetConfig<IS1Randomizers> {
+public class IS1Config extends InstructionSetConfig<IS1Config, IS1Randomizers> {
 
   private static final InstructionFactory[] INSTRUCTIONS = {
+    new Nop (NOP),
     new Label (LABEL, 0),
     new FindForward (FIND, 0, 0),
     new FindBackward (FIND, 0, 1),

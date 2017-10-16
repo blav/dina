@@ -8,7 +8,7 @@ public interface Program {
 
   int getInstructionPointer ();
 
-  long getId ();
+  int getId ();
 
   int getFaults ();
 

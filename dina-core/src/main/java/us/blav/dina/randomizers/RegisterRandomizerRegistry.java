@@ -46,7 +46,7 @@ public class RegisterRandomizerRegistry {
         MapBinder<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>
           mb = newMapBinder (binder, KEY, VALUE);
 
-        map.entrySet ().forEach (e -> mb.addBinding (e.getKey ()).toInstance (e.getValue ()));
+        map.forEach ((k, v) -> mb.addBinding (k).toInstance (v));
         resolvers.done ();
       }
     };

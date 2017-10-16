@@ -3,6 +3,7 @@ package us.blav.dina;
 import com.google.inject.TypeLiteral;
 
 import java.util.Iterator;
+import java.util.stream.IntStream;
 
 import static us.blav.dina.MemoryHeap.State.*;
 
@@ -132,6 +133,10 @@ public class MemoryHeap {
     private Cell (int size, State state) {
       this.size = size;
       this.state = state;
+    }
+
+    public IntStream bytes () {
+      return IntStream.range (offset, offset + size);
     }
 
     public MemoryHeap getMemoryHeap () {
