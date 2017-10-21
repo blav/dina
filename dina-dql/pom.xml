@@ -11,12 +11,10 @@
   </parent>
 
   <groupId>us.blav</groupId>
-  <artifactId>dina-console</artifactId>
+  <artifactId>dina-dql</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
-
-    <!-- project -->
     <dependency>
       <groupId>us.blav</groupId>
       <artifactId>commons</artifactId>
@@ -29,7 +27,7 @@
     </dependency>
     <dependency>
       <groupId>us.blav</groupId>
-      <artifactId>dina-is-is1</artifactId>
+      <artifactId>dina-console</artifactId>
       <version>${dina.version}</version>
     </dependency>
 
@@ -68,6 +66,18 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- sql parser -->
+    <dependency>
+      <groupId>com.github.jsqlparser</groupId>
+      <artifactId>jsqlparser</artifactId>
+    </dependency>
+
+    <!-- ascii table -->
+    <dependency>
+      <groupId>de.vandermeer</groupId>
+      <artifactId>asciitable</artifactId>
     </dependency>
 
   </dependencies>

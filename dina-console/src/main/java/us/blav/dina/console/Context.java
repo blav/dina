@@ -1,6 +1,9 @@
 package us.blav.dina.console;
 
 import java.io.PrintStream;
+import java.util.function.Function;
+
+import static us.blav.dina.console.MainLoop.State.paused;
 
 public class Context {
 
@@ -17,6 +20,17 @@ public class Context {
     this.stats = stats;
     this.out = System.out;
     this.err = System.err;
+  }
+
+  public boolean executePaused (Function<Context, Boolean> action) {
+    MainLoop loop = getLoop ();
+    MainLoop.State state = loop.getActualState ();
+    try {
+      loop.requestState (paused);
+      return action.apply (this);
+    } finally {
+      loop.requestState (state);
+    }
   }
 
   public MainLoop getLoop () {
