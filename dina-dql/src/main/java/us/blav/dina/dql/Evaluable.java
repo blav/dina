@@ -25,8 +25,16 @@ public abstract class Evaluable {
     return ensureType (LONG);
   }
 
-  public Evaluable ensureType (PrimitiveType expected) {
-    getType ().ensureType (expected);
+  public Evaluable ensureDouble () {
+    return ensureType (DOUBLE);
+  }
+
+  public Evaluable ensureNumber () {
+    return ensureType (DOUBLE, LONG);
+  }
+
+  public Evaluable ensureType (PrimitiveType first, PrimitiveType... others) {
+    getType ().ensureType (first, others);
     return this;
   }
 

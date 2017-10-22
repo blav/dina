@@ -118,8 +118,9 @@ public class Main {
     System.out.println ("Enter a command (h for help)");
     for (boolean run = true; run; ) {
       System.out.printf ("> ");
-      String cmd = scanner.next ();
-      run = ofNullable (getCommand (cmd)).orElse (new Error (cmd)).run (context, scanner);
+      Scanner line = new Scanner (new StringReader (scanner.nextLine ()));
+      String cmd = line.next ();
+      run = ofNullable (getCommand (cmd)).orElse (new Error (cmd)).run (context, line);
     }
 
     loop.requestState (stopped);

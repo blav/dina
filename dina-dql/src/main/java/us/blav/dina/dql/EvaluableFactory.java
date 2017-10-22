@@ -8,6 +8,7 @@ import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import us.blav.dina.VirtualMachine;
 import us.blav.dina.dql.schema.Column;
+import us.blav.dina.dql.schema.PrimitiveType;
 import us.blav.dina.dql.schema.Schema;
 import us.blav.dina.dql.schema.Table;
 
@@ -15,9 +16,7 @@ import java.util.Optional;
 import java.util.Stack;
 import java.util.function.BiFunction;
 
-import static us.blav.dina.dql.schema.PrimitiveType.BOOLEAN;
-import static us.blav.dina.dql.schema.PrimitiveType.LONG;
-import static us.blav.dina.dql.schema.PrimitiveType.ensureSame;
+import static us.blav.dina.dql.schema.PrimitiveType.*;
 import static us.blav.dina.dql.schema.Schema.SCHEMA;
 
 public class EvaluableFactory {
@@ -57,6 +56,11 @@ public class EvaluableFactory {
     @Override
     public void visit (StringValue stringValue) {
       stack.push (new EvaluableConstant (stringValue.getValue ()));
+    }
+
+    @Override
+    public void visit (DoubleValue doubleValue) {
+      stack.push (new EvaluableConstant (doubleValue.getValue ()));
     }
 
     @Override
@@ -111,80 +115,80 @@ public class EvaluableFactory {
     @Override
     public void visit (GreaterThan greaterThan) {
       combine (greaterThan, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
+        left.ensureNumber ();
+        right.ensureNumber ();
         return new EvaluableFunction (BOOLEAN,
-          c -> new Value (left.evaluate (c).getLong () > right.evaluate (c).getLong ()));
+          c -> Value.greaterThan (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (GreaterThanEquals greaterThanEquals) {
       combine (greaterThanEquals, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
+        left.ensureNumber ();
+        right.ensureNumber ();
         return new EvaluableFunction (BOOLEAN,
-          c -> new Value (left.evaluate (c).getLong () >= right.evaluate (c).getLong ()));
+          c -> Value.greaterEqualsTham (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (MinorThan minorThan) {
       combine (minorThan, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
+        left.ensureNumber ();
+        right.ensureNumber ();
         return new EvaluableFunction (BOOLEAN,
-          c -> new Value (left.evaluate (c).getLong () < right.evaluate (c).getLong ()));
+          c -> Value.minorThan (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (MinorThanEquals minorThanEquals) {
       combine (minorThanEquals, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
+        left.ensureNumber ();
+        right.ensureNumber ();
         return new EvaluableFunction (BOOLEAN,
-          c -> new Value (left.evaluate (c).getLong () <= right.evaluate (c).getLong ()));
+          c -> Value.minorEqualsTham (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (Addition addition) {
       combine (addition, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
-        return new EvaluableFunction (LONG,
-          c -> new Value (left.evaluate (c).getLong () + right.evaluate (c).getLong ()));
+        left.ensureNumber ();
+        right.ensureNumber ();
+        return new EvaluableFunction (mergeNumbers (left.getType (), right.getType ()),
+          c -> Value.add (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (Division division) {
       combine (division, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
-        return new EvaluableFunction (LONG,
-          c -> new Value (left.evaluate (c).getLong () / right.evaluate (c).getLong ()));
+        left.ensureNumber ();
+        right.ensureNumber ();
+        return new EvaluableFunction (mergeNumbers (left.getType (), right.getType ()),
+          c -> Value.divide (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (Multiplication multiplication) {
       combine (multiplication, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
-        return new EvaluableFunction (LONG,
-          c -> new Value (left.evaluate (c).getLong () * right.evaluate (c).getLong ()));
+        left.ensureNumber ();
+        right.ensureNumber ();
+        return new EvaluableFunction (mergeNumbers (left.getType (), right.getType ()),
+          c -> Value.multiply (left.evaluate (c), right.evaluate (c)));
       });
     }
 
     @Override
     public void visit (Subtraction subtraction) {
       combine (subtraction, (left, right) -> {
-        left.ensureLong ();
-        right.ensureLong ();
-        return new EvaluableFunction (LONG,
-          c -> new Value (left.evaluate (c).getLong () - right.evaluate (c).getLong ()));
+        left.ensureNumber ();
+        right.ensureNumber ();
+        return new EvaluableFunction (mergeNumbers (left.getType (), right.getType ()),
+          c -> Value.substract (left.evaluate (c), right.evaluate (c)));
       });
     }
 
@@ -216,8 +220,11 @@ public class EvaluableFactory {
       if (!signedExpression.equals ('-'))
         return;
 
-      Evaluable x = stack.pop ().ensureLong ();
-      stack.push (new EvaluableFunction (LONG, c -> new Value (-x.evaluate (c).getLong ())));
+      Evaluable x = stack.pop ().ensureNumber ();
+      stack.push (new EvaluableFunction (x.getType (), c -> {
+        Value v = x.evaluate (c);
+        return x.getType () == LONG ? new Value (- v.getLong ()) : new Value (- v.getDouble ());
+      }));
     }
 
     private void combine (BinaryExpression binary, BiFunction<Evaluable, Evaluable, EvaluableFunction> combiner) {
@@ -262,11 +269,6 @@ public class EvaluableFactory {
 
     @Override
     public void visit (JdbcNamedParameter jdbcNamedParameter) {
-      throw new UnsupportedOperationException ();
-    }
-
-    @Override
-    public void visit (DoubleValue doubleValue) {
       throw new UnsupportedOperationException ();
     }
 

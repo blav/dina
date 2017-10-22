@@ -2,7 +2,6 @@ package us.blav.dina.console.commands;
 
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -15,11 +14,11 @@ import us.blav.dina.dql.schema.Column;
 import us.blav.dina.dql.schema.Schema;
 import us.blav.dina.dql.schema.Table;
 
-import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.*;
 
+import static java.lang.Math.signum;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
 
 public class Select implements Command {
@@ -47,7 +46,7 @@ public class Select implements Command {
           .map (Limit::getRowCount)
           .map (x -> EvaluableFactory.evaluate (machine, x))
           .map (Value::getLong)
-          .orElse (Long.MAX_VALUE);
+          .orElse (10L);
 
         long offset = ofNullable (select.getLimit ())
           .map (Limit::getOffset)
@@ -55,21 +54,48 @@ public class Select implements Command {
           .map (Value::getLong)
           .orElse (0L);
 
-        Evaluable v = ofNullable (new EvaluableFactory ().create (select.getWhere ()))
+        EvaluableFactory factory = new EvaluableFactory ();
+        Evaluable where = ofNullable (factory.create (select.getWhere ()))
           .orElse (new EvaluableConstant (true));
 
-        v.getType ().ensureBoolean ();
+        where.getType ().ensureBoolean ();
+
+        List<Comparator<EvaluationContext>> comparators =
+          ofNullable (select.getOrderByElements ()).orElse (Collections.emptyList ())
+            .stream ()
+            .map (o -> {
+              Evaluable e = new EvaluableCache (factory.create (o.getExpression ()));
+              e.ensureNumber ();
+              Comparator<EvaluationContext> comparator = (o1, o2) -> (int)
+                signum (e.evaluate (o1).asDouble () - e.evaluate (o2).asDouble ());
+
+              return o.isAsc () ? comparator : comparator.reversed ();
+            })
+            .collect (toList ());
+
+        comparators.add (Comparator.comparingInt (
+          e -> ofNullable (e.getCurrentProgram ()).map (ProgramState::getId).orElse (0)));
+
+        Comparator<EvaluationContext> head = comparators.remove (0);
+        head = comparators.stream ().reduce (head, (a, b) -> a.thenComparing (b));
+
         AT_Context asciiContext = new AT_Context ();
         asciiContext.setWidth (160);
+        asciiContext.setLineSeparator ("\n");
 
         AsciiTable asciiTable = new AsciiTable (asciiContext);
         asciiTable.addRule ();
-        asciiTable.addRow (columns.stream ().map (Column::getName).collect (toList ()));
+        asciiTable.addRow (columns.stream ()
+          .map (Column::getName)
+          .map (String::toUpperCase)
+          .collect (toList ()));
+
         asciiTable.addRule ();
 
         machine.getPrograms ().stream ()
           .map (p -> new EvaluationContext (machine, defaultTable, p))
-          .filter (ec -> v.evaluate (ec).getBoolean ())
+          .filter (ec -> where.evaluate (ec).getBoolean ())
+          .sorted (head)
           .skip (offset)
           .limit (limit)
           .forEach (ec -> {

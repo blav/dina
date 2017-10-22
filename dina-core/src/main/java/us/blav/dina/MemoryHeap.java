@@ -263,8 +263,6 @@ public class MemoryHeap {
       return "[" + offset + "-" + state.getShortName () + "-" + (offset + size) + "[";
     }
 
-
-
     private int offset;
 
     private int size;

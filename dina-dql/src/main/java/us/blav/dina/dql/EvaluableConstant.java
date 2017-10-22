@@ -21,6 +21,12 @@ public class EvaluableConstant extends Evaluable {
     this.value = new Value (value);
   }
 
+  public EvaluableConstant (Double value) {
+    super (DOUBLE);
+    this.value = new Value (value);
+  }
+
+
   @Override
   public Value evaluate (EvaluationContext context) {
     return value;

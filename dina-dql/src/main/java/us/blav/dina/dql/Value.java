@@ -4,9 +4,7 @@ import us.blav.dina.dql.schema.PrimitiveType;
 
 import java.util.Objects;
 
-import static us.blav.dina.dql.schema.PrimitiveType.BOOLEAN;
-import static us.blav.dina.dql.schema.PrimitiveType.LONG;
-import static us.blav.dina.dql.schema.PrimitiveType.STRING;
+import static us.blav.dina.dql.schema.PrimitiveType.*;
 
 public class Value {
 
@@ -29,6 +27,11 @@ public class Value {
     this.value = value;
   }
 
+  public Value (Double value) {
+    this.type = DOUBLE;
+    this.value = value;
+  }
+
   public PrimitiveType getType () {
     return type;
   }
@@ -48,20 +51,84 @@ public class Value {
     return (Boolean) value;
   }
 
+  public Double getDouble () {
+    return (Double) value;
+  }
+
+  public Long asLong () {
+    type.ensureNumber ();
+    return type == LONG ? (Long) value : ((Double) value).longValue ();
+  }
+
+  public Double asDouble () {
+    type.ensureNumber ();
+    return type == DOUBLE ? (Double) value : ((Long) value).doubleValue ();
+  }
+
   @Override
   public String toString () {
     return String.valueOf (value);
   }
 
+  public static Value add (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () + right.asLong ()) :
+      new Value (left.asDouble () + right.asDouble ());
+  }
+
+  public static Value substract (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () - right.asLong ()) :
+      new Value (left.asDouble () - right.asDouble ());
+  }
+
+  public static Value multiply (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () * right.asLong ()) :
+      new Value (left.asDouble () * right.asDouble ());
+  }
+
+  public static Value divide (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () / right.asLong ()) :
+      new Value (left.asDouble () / right.asDouble ());
+  }
+
+  public static Value greaterThan (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () > right.asLong ()) :
+      new Value (left.asDouble () > right.asDouble ());
+  }
+
+  public static Value greaterEqualsTham (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () >= right.asLong ()) :
+      new Value (left.asDouble () >= right.asDouble ());
+  }
+
+  public static Value minorThan (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () < right.asLong ()) :
+      new Value (left.asDouble () < right.asDouble ());
+  }
+
+  public static Value minorEqualsTham (Value left, Value right) {
+    PrimitiveType type = mergeNumbers (left.getType (), right.getType ());
+    return type == LONG ? new Value (left.asLong () <= right.asLong ()) :
+      new Value (left.asDouble () <= right.asDouble ());
+  }
+
   public static boolean equals (Value left, Value right) {
-    PrimitiveType type = PrimitiveType.ensureSame (left.getType (), right.getType ());
+    PrimitiveType type = ensureSame (left.getType (), right.getType ());
     switch (type) {
       case STRING:
         return Objects.equals (left.getString (), right.getString ());
       case LONG:
         return left.getLong () == right.getLong ();
       case BOOLEAN:
-        return left.getLong () == right.getLong ();
+        return left.getBoolean () == right.getBoolean ();
+      case DOUBLE:
+        return left.getDouble () == right.getDouble ();
       default:
         throw new IllegalStateException ();
     }

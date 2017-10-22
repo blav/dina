@@ -3,6 +3,7 @@ package us.blav.dina.dql.schema;
 import us.blav.dina.console.commands.Dump;
 import us.blav.dina.dql.EvaluableFunction;
 import us.blav.dina.dql.Value;
+import us.blav.dina.metrics.Information;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -27,11 +28,14 @@ public class Schema {
   private static final Column PROGRAM_SIZE = new Column ("size",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getSize ())));
 
-  private static final Column PROGRAM_OFFSET = new Column ("offset",
+  private static final Column PROGRAM_POSITION = new Column ("position",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getOffset ())));
 
   private static final Column PROGRAM_IP = new Column ("ip",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getInstructionPointer ())));
+
+  private static final Column PROGRAM_INFORMATION = new Column ("information",
+    new EvaluableFunction (LONG, c -> new Value (new Information ().compute (c.getMachine (), c.getCurrentProgram ()))));
 
   private static final Column PROGRAM_CODE = new Column ("code",
     new EvaluableFunction (STRING, c -> {
@@ -46,8 +50,9 @@ public class Schema {
     PROGRAM_ID,
     PROGRAM_SIZE,
     PROGRAM_FAULTS,
-    PROGRAM_OFFSET,
+    PROGRAM_POSITION,
     PROGRAM_IP,
+    PROGRAM_INFORMATION,
     PROGRAM_CODE
   );
 

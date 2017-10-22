@@ -1,10 +1,14 @@
 package us.blav.dina.dql.schema;
 
+import java.util.EnumSet;
+
 public enum PrimitiveType {
 
   STRING,
   LONG,
-  BOOLEAN,;
+  BOOLEAN,
+  DOUBLE
+  ;
 
   public void ensureString () {
     ensureType (STRING);
@@ -18,8 +22,22 @@ public enum PrimitiveType {
     ensureType (LONG);
   }
 
-  public void ensureType (PrimitiveType expected) {
-    if (this != expected)
+  public void ensureDouble () {
+    ensureType (DOUBLE);
+  }
+
+  public void ensureNumber () {
+    ensureType (DOUBLE, LONG);
+  }
+
+  public static PrimitiveType mergeNumbers (PrimitiveType left, PrimitiveType right) {
+    left.ensureNumber ();
+    right.ensureNumber ();
+    return left == LONG && right == LONG ? LONG : DOUBLE;
+  }
+
+  public void ensureType (PrimitiveType first, PrimitiveType ... others) {
+    if (EnumSet.of (first, others).contains (this) == false)
       throw new IllegalArgumentException (this.toString ());
   }
 
