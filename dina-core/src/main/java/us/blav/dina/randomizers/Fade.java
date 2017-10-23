@@ -16,21 +16,22 @@ public class Fade extends AbstractRegisterRandomizer<FadeConfig> {
   @Override
   public int randomizeValue (ProgramState state, int value) throws Fault {
     MemoryHeap.Cell cell = state.getCell ();
-    int v = Math.abs (value - cell.getOffset () - cell.getSize () / 2);
+    int radius = cell.getSize () / 2;
+    int center = cell.getOffset () + radius;
+    int d = Math.abs (value - center) - radius;
 
-    int from = getConfig ().getFrom ();
-    if (v <= from)
+    if (d <= 0)
       return value;
 
-    int to = getConfig ().getTo ();
-    if (v >= to)
+    int distance = getConfig ().getDistance ();
+    if (d >= distance)
       throw new Fault ();
 
     int i = getMachine ().getRandomizer ().nextInt ();
     if (i % this.getConfig ().getProbability () != 0)
       return value;
 
-    if (i % (to - from) <= v - from)
+    if (i % distance <= d)
       throw new Fault ();
 
     return value;

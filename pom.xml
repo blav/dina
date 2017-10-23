@@ -30,7 +30,6 @@
     <jsqlparser.version>1.1</jsqlparser.version>
     <asciitable.version>0.3.2</asciitable.version>
     <jline.version>3.5.1</jline.version>
-    <jdcp.version>2.0.3.1</jdcp.version>
   </properties>
 
   <build>
@@ -132,14 +131,6 @@
         <artifactId>jline</artifactId>
         <version>${jline.version}</version>
       </dependency>
-
-      <!-- jdcp -->
-      <dependency>
-        <groupId>com.diogonunes</groupId>
-        <artifactId>JCDP</artifactId>
-        <version>${jdcp.version}</version>
-      </dependency>
-
 
     </dependencies>
   </dependencyManagement>

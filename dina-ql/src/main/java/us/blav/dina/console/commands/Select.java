@@ -5,6 +5,8 @@ import de.vandermeer.asciitable.AsciiTable;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import org.jline.builtins.Completers;
+import org.jline.builtins.Completers.TreeCompleter;
 import us.blav.dina.ProgramState;
 import us.blav.dina.VirtualMachine;
 import us.blav.dina.console.Command;
@@ -15,12 +17,17 @@ import us.blav.dina.dql.schema.Schema;
 import us.blav.dina.dql.schema.Table;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.lang.Math.signum;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toConcurrentMap;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
+import static org.jline.builtins.Completers.TreeCompleter.node;
+import static us.blav.dina.dql.schema.Schema.PROGRAM;
 
 public class Select implements Command {
 
@@ -110,5 +117,18 @@ public class Select implements Command {
         return true;
       }
     });
+  }
+
+  @Override
+  public TreeCompleter.Node getCompletions (String commandName) {
+    return node (
+      commandName,
+      node (
+        concat (
+          PROGRAM.getColumns ().stream ().map (Column::getName),
+          of ("*")
+        ).toArray ()
+      )
+    );
   }
 }

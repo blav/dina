@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToDoubleBiFunction;
+import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
+import static java.lang.Math.signum;
+import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.comparingInt;
 import static java.util.Comparator.comparingLong;
 import static java.util.Optional.ofNullable;
@@ -17,7 +21,7 @@ public class HeapReclaimerImpl implements HeapReclaimer {
       .thenComparing (comparingInt (Program::getCycles).reversed ());
 
   private static final Comparator<Program> COMPARATOR2 =
-    comparingInt ((ToIntFunction<Program>) p -> p.getFaults () / (1 + p.getCycles ())).reversed ();
+    comparingDouble ((ToDoubleFunction<Program>) p -> p.getFaults () / (1.0 + p.getCycles ())).reversed ();
 
   public HeapReclaimerImpl (VirtualMachine machine) {
     this.machine = machine;

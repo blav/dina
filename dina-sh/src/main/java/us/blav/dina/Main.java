@@ -3,13 +3,13 @@ package us.blav.dina;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.jline.builtins.Completers.TreeCompleter;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
-import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import us.blav.dina.console.CommandsRegistry;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 import us.blav.dina.console.Context;
 import us.blav.dina.console.MainLoop;
 import us.blav.dina.console.Stats;
@@ -29,8 +29,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static us.blav.dina.Config.DEFAULT;
 import static us.blav.dina.console.CommandsRegistry.getCommand;
+import static us.blav.dina.console.CommandsRegistry.getCommands;
 import static us.blav.dina.console.MainLoop.State.stopped;
 import static us.blav.dina.randomizers.ShuffleConfig.Range.BYTE;
 
@@ -42,13 +44,13 @@ public class Main {
           .addRandomizer (IS1Randomizers.WRITE,
             new ShuffleConfig ().setProbability (100).setRange (BYTE))
           .addRandomizer (IS1Randomizers.INCREMENT,
-            new ShiftConfig ().setProbability (200).setValue (1))
+            new ShiftConfig ().setProbability (200).setValue (2))
           .addRandomizer (IS1Randomizers.DECREMENT,
-            new ShiftConfig ().setProbability (200).setValue (1))
+            new ShiftConfig ().setProbability (200).setValue (2))
           .addRandomizer (IS1Randomizers.GOTO,
-            new FadeConfig ().setProbability (10).setFrom (30).setTo (150))
+            new FadeConfig ().setProbability (10).setDistance (150))
           .addRandomizer (IS1Randomizers.FIND,
-            new FadeConfig ().setProbability (10).setFrom (30).setTo (150))
+            new FadeConfig ().setProbability (10).setDistance (150))
         //.addRandomizer (IS1Randomizers.SUBSTRACT, new ShiftConfig ()
         //  .setProbability (200))
         //.addRandomizer (IS1Randomizers.SUBSTRACT, new NopConfig ())
@@ -128,7 +130,8 @@ public class Main {
 
     LineReader reader = LineReaderBuilder.builder ()
       .appName ("dina")
-      .completer (new StringsCompleter (CommandsRegistry.getCommands ().keySet ()))
+      .completer (new TreeCompleter (getCommands ().entrySet ().stream ()
+        .map (e -> e.getValue ().getCompletions (e.getKey ())).collect (toList ())))
       .history (new DefaultHistory ())
       .terminal (TerminalBuilder.terminal ())
       .variable (LineReader.HISTORY_FILE, Paths.get (
@@ -140,7 +143,12 @@ public class Main {
     System.out.println ("Enter a command (h for help)");
     for (boolean run = true; run; ) {
       try {
-        Scanner line = new Scanner (reader.readLine ("dina> "));
+        String prompt = new AttributedStringBuilder ()
+          .style (AttributedStyle.DEFAULT.foreground (AttributedStyle.GREEN))
+          .append ("dina> ")
+          .toAnsi ();
+
+        Scanner line = new Scanner (reader.readLine (prompt));
         String cmd = line.next ();
         run = ofNullable (getCommand (cmd)).orElse (new Error (cmd)).run (context, line);
       } catch (NoSuchElementException e) {

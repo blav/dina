@@ -19,31 +19,31 @@ public class Schema {
 
   public static final String TABLE_PROGRAMS = "programs";
 
-  private static final Column PROGRAM_ID = new Column ("id",
+  public static final Column PROGRAM_ID = new Column ("id",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getId ())));
 
-  private static final Column PROGRAM_FAULTS = new Column ("faults",
+  public static final Column PROGRAM_FAULTS = new Column ("faults",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getFaults ())));
 
-  private static final Column PROGRAM_CYCLES = new Column ("cycles",
+  public static final Column PROGRAM_CYCLES = new Column ("cycles",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCycles ())));
 
-  private static final Column PROGRAM_FORKS = new Column ("forks",
+  public static final Column PROGRAM_FORKS = new Column ("forks",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getForks ())));
 
-  private static final Column PROGRAM_SIZE = new Column ("size",
+  public static final Column PROGRAM_SIZE = new Column ("size",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getSize ())));
 
-  private static final Column PROGRAM_POSITION = new Column ("position",
+  public static final Column PROGRAM_POSITION = new Column ("position",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getOffset ())));
 
-  private static final Column PROGRAM_IP = new Column ("ip",
+  public static final Column PROGRAM_IP = new Column ("ip",
     new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getInstructionPointer ())));
 
-  private static final Column PROGRAM_ENTROPY = new Column ("entropy",
+  public static final Column PROGRAM_ENTROPY = new Column ("entropy",
     new EvaluableFunction (LONG, c -> new Value (new Entropy ().compute (c.getMachine (), c.getCurrentProgram ()))));
 
-  private static final Column PROGRAM_CODE = new Column ("code",
+  public static final Column PROGRAM_CODE = new Column ("code",
     new EvaluableFunction (STRING, c -> {
       try {
         return new Value (Dump.dump (c.getMachine (), c.getCurrentProgram (), new StringWriter ()).toString ());
@@ -52,7 +52,7 @@ public class Schema {
       }
     }));
 
-  private static final Table PROGRAM = new Table (TABLE_PROGRAMS,
+  public static final Table PROGRAM = new Table (TABLE_PROGRAMS,
     PROGRAM_ID,
     PROGRAM_SIZE,
     PROGRAM_CYCLES,
