@@ -29,7 +29,7 @@
     <jackson.version>2.9.1</jackson.version>
     <jsqlparser.version>1.1</jsqlparser.version>
     <asciitable.version>0.3.2</asciitable.version>
-    <jline.version>2.14.5</jline.version>
+    <jline.version>3.5.1</jline.version>
     <jdcp.version>2.0.3.1</jdcp.version>
   </properties>
 
@@ -128,7 +128,7 @@
 
       <!-- jline -->
       <dependency>
-        <groupId>jline</groupId>
+        <groupId>org.jline</groupId>
         <artifactId>jline</artifactId>
         <version>${jline.version}</version>
       </dependency>

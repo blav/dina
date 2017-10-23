@@ -96,7 +96,7 @@ public class ProgramState implements Program {
       throw new Fault ();
   }
 
-  public int get (int register, RegisterRandomizer<?> randomizer) {
+  public int get (int register, RegisterRandomizer<?> randomizer) throws Fault {
     ensureValidRegister (register);
     return randomizer.randomizeValue (this, this.registers [register]);
   }

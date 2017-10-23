@@ -1,5 +1,6 @@
 package us.blav.dina.randomizers;
 
+import us.blav.dina.Fault;
 import us.blav.dina.ProgramState;
 import us.blav.dina.VirtualMachine;
 
@@ -13,7 +14,7 @@ public interface RegisterRandomizer<CONF extends RegisterRandomizerConfig> {
 
   RegisterRandomizer<?> NOP = new Nop ();
 
-  int randomizeValue (ProgramState state, int value);
+  int randomizeValue (ProgramState state, int value) throws Fault;
 
   interface Name {
 

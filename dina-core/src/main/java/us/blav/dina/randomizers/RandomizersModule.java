@@ -11,6 +11,7 @@ public class RandomizersModule extends AbstractModule {
       .registerRandomizer ("shuffle", ShuffleConfig.class, Shuffle.FACTORY)
       .registerRandomizer ("shift", ShiftConfig.class, Shift.FACTORY)
       .registerRandomizer ("bitflip", BitFlipConfig.class, BitFlip.FACTORY)
+      .registerRandomizer ("fade", FadeConfig.class, Fade.FACTORY)
       .done ();
   }
 }

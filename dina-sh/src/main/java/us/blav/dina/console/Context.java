@@ -1,6 +1,6 @@
 package us.blav.dina.console;
 
-import jline.console.ConsoleReader;
+import org.jline.reader.LineReader;
 
 import java.io.PrintStream;
 import java.util.function.Function;
@@ -17,9 +17,9 @@ public class Context {
 
   private final PrintStream err;
 
-  private final ConsoleReader reader;
+  private final LineReader reader;
 
-  public Context (ConsoleReader reader, MainLoop loop, Stats stats) {
+  public Context (LineReader reader, MainLoop loop, Stats stats) {
     this.reader = reader;
     this.loop = loop;
     this.stats = stats;
@@ -46,7 +46,7 @@ public class Context {
     return stats;
   }
 
-  public ConsoleReader getReader () {
+  public LineReader getReader () {
     return reader;
   }
 

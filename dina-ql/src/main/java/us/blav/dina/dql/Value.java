@@ -119,16 +119,15 @@ public class Value {
   }
 
   public static boolean equals (Value left, Value right) {
-    PrimitiveType type = ensureSame (left.getType (), right.getType ());
-    switch (type) {
+    switch (ensureSame (left.getType (), right.getType ())) {
       case STRING:
         return Objects.equals (left.getString (), right.getString ());
       case LONG:
-        return left.getLong () == right.getLong ();
+        return Objects.equals (left.getLong (), right.getLong ());
       case BOOLEAN:
-        return left.getBoolean () == right.getBoolean ();
+        return Objects.equals (left.getBoolean (), right.getBoolean ());
       case DOUBLE:
-        return left.getDouble () == right.getDouble ();
+        return Objects.equals (left.getDouble (), right.getDouble ());
       default:
         throw new IllegalStateException ();
     }

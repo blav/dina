@@ -217,7 +217,7 @@ public class EvaluableFactory {
     @Override
     public void visit (SignedExpression signedExpression) {
       signedExpression.getExpression ().accept (this);
-      if (!signedExpression.equals ('-'))
+      if (signedExpression.getSign () != '-')
         return;
 
       Evaluable x = stack.pop ().ensureNumber ();
