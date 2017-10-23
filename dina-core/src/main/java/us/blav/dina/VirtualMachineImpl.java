@@ -5,9 +5,7 @@ import us.blav.commons.Chain;
 import us.blav.commons.Chain.Filter;
 import us.blav.dina.randomizers.RegisterRandomizer;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static us.blav.commons.Injector.getInstance;
 import static us.blav.dina.MemoryHeap.Direction.right;
@@ -31,8 +29,6 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private int programIdGenerator;
 
-  private EnergyTracker tracker;
-
   public VirtualMachineImpl (Config config) {
     this.config = config;
     this.heap = getInstance (MemoryHeap.FACTORY_TYPE).create (this);
@@ -49,17 +45,15 @@ public class VirtualMachineImpl implements VirtualMachine {
 
     this.execution.installAll (config.getExecutionFilters ());
 
-    HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (), HeapReclaimer.FACTORY_TYPE).create (this);
+    HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (),
+      HeapReclaimer.FACTORY_TYPE).create (this);
+
     this.reclaim = new Chain<> (Reclaim.FILTER_TYPE);
     this.reclaim.install (((chain, reclaim) -> {
       reclaim.getReclaimList ().addAll (reclaimer.reclaim (reclaim.getMachine ()));
     }));
 
     this.reclaim.installAll (config.getReclaimerFilters ());
-
-    this.tracker = amount -> {
-    };
-
     this.registry = new InstructionRegistry ();
     this.config.getInstructionSet ().registerInstructions (this.registry);
 
@@ -72,10 +66,10 @@ public class VirtualMachineImpl implements VirtualMachine {
     try {
       int size = boostrap.size ();
       MemoryHeap.Cell first = this.heap.getFirst ();
-      MemoryHeap.Cell c = first.split (right, (this.heap.size () - size) / 2, this.tracker);
-      MemoryHeap.Cell cell = first.split (right, size, this.tracker);
+      MemoryHeap.Cell c = first.split (right, (this.heap.size () - size) / 2);
+      MemoryHeap.Cell cell = first.split (right, size);
 
-      c.free (this.tracker);
+      c.free ();
       if (cell.getSize () != boostrap.size ())
         throw new IllegalArgumentException ();
 
@@ -95,6 +89,7 @@ public class VirtualMachineImpl implements VirtualMachine {
 
   private void process (ProgramState state) {
     Opcode opcode = this.registry.getInstruction (this.heap.get (state.getInstructionPointer ()));
+    state.incrementCycles ();
     execution.next (new ExecutionStep () {
       @Override
       public Opcode getOpcode () {
@@ -146,9 +141,9 @@ public class VirtualMachineImpl implements VirtualMachine {
       throw new IllegalStateException ("no such pid " + pid);
 
     try {
-      p.getCell ().free (this.tracker);
+      p.getCell ().free ();
       if (p.getChild () != null)
-        p.getChild ().free (this.tracker);
+        p.getChild ().free ();
     } catch (Fault fault) {
       throw new RuntimeException (fault);
     }

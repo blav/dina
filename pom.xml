@@ -14,8 +14,8 @@
     <module>commons</module>
     <module>dina-core</module>
     <module>dina-is-is1</module>
-    <module>dina-dql</module>
-    <module>dina-console</module>
+    <module>dina-ql</module>
+    <module>dina-sh</module>
   </modules>
 
   <properties>
@@ -29,6 +29,8 @@
     <jackson.version>2.9.1</jackson.version>
     <jsqlparser.version>1.1</jsqlparser.version>
     <asciitable.version>0.3.2</asciitable.version>
+    <jline.version>2.14.5</jline.version>
+    <jdcp.version>2.0.3.1</jdcp.version>
   </properties>
 
   <build>
@@ -123,6 +125,21 @@
         <artifactId>asciitable</artifactId>
         <version>${asciitable.version}</version>
       </dependency>
+
+      <!-- jline -->
+      <dependency>
+        <groupId>jline</groupId>
+        <artifactId>jline</artifactId>
+        <version>${jline.version}</version>
+      </dependency>
+
+      <!-- jdcp -->
+      <dependency>
+        <groupId>com.diogonunes</groupId>
+        <artifactId>JCDP</artifactId>
+        <version>${jdcp.version}</version>
+      </dependency>
+
 
     </dependencies>
   </dependencyManagement>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 import static java.util.Comparator.comparingInt;
 import static java.util.Comparator.comparingLong;
@@ -13,7 +14,10 @@ public class HeapReclaimerImpl implements HeapReclaimer {
 
   private static final Comparator<Program> COMPARATOR =
     comparingInt (Program::getFaults).reversed ()
-      .thenComparing (comparingLong (Program::getId).reversed ());
+      .thenComparing (comparingInt (Program::getCycles).reversed ());
+
+  private static final Comparator<Program> COMPARATOR2 =
+    comparingInt ((ToIntFunction<Program>) p -> p.getFaults () / (1 + p.getCycles ())).reversed ();
 
   public HeapReclaimerImpl (VirtualMachine machine) {
     this.machine = machine;
@@ -28,7 +32,7 @@ public class HeapReclaimerImpl implements HeapReclaimer {
 
     double reclaim = heap.getUsed () - reclaimer.getThresholdLow () * heap.getTotal ();
     ArrayList<Program> programs = new ArrayList<> (machine.getPrograms ());
-    Collections.sort (programs, COMPARATOR);
+    Collections.sort (programs, COMPARATOR2);
 
     ArrayList<Program> ret = new ArrayList<> ();
     int size = 0;

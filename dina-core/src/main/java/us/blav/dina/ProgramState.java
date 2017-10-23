@@ -4,7 +4,7 @@ import us.blav.dina.randomizers.RegisterRandomizer;
 
 import static us.blav.dina.randomizers.RegisterRandomizer.NOP;
 
-public class ProgramState implements EnergyTracker, Program {
+public class ProgramState implements Program {
 
   private final MemoryHeap.Cell cell;
 
@@ -13,6 +13,10 @@ public class ProgramState implements EnergyTracker, Program {
   private int instructionPointer;
 
   private int id;
+
+  private int cycles;
+
+  private int forks;
 
   public ProgramState (MemoryHeap.Cell cell, int registers) {
     this.cell = cell;
@@ -59,7 +63,21 @@ public class ProgramState implements EnergyTracker, Program {
   }
 
   @Override
-  public void reportEnergySpent (long amount) {
+  public int getCycles () {
+    return cycles;
+  }
+
+  public void incrementCycles () {
+    this.cycles ++;
+  }
+
+  @Override
+  public int getForks () {
+    return forks;
+  }
+
+  public void incrementForks () {
+    this.forks ++;
   }
 
   public void set (int register, int value, RegisterRandomizer<?> randomizer) throws Fault {

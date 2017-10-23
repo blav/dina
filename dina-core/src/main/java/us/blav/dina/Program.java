@@ -10,6 +10,10 @@ public interface Program {
 
   int getId ();
 
+  int getForks ();
+
   int getFaults ();
+
+  int getCycles ();
 
 }

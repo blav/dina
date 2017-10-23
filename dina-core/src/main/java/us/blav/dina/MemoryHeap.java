@@ -143,7 +143,7 @@ public class MemoryHeap {
       return MemoryHeap.this;
     }
 
-    public Cell split (Direction direction, int size, EnergyTracker tracker) throws Fault {
+    public Cell split (Direction direction, int size) throws Fault {
       if (size <= 0 || size > this.size)
         throw new Fault ();
 
@@ -183,7 +183,7 @@ public class MemoryHeap {
       return cell;
     }
 
-    public void free (EnergyTracker tracker) throws Fault {
+    public void free () throws Fault {
       if (state != inuse)
         throw new Fault ();
 

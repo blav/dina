@@ -25,6 +25,7 @@ public class Fork extends Base {
 
         child.setInstructionPointer (child.getCell ().getOffset (), NOP);
         state.setChild (null);
+        state.incrementForks ();
         for (int i = 0; i < 4; i++)
           child.set (i, state.get (i, NOP), machine.getRandomizer (randomizer));
 

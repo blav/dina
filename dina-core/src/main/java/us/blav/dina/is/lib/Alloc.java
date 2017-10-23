@@ -44,9 +44,9 @@ public class Alloc extends Base {
         if (cleft == null && cright == null) {
           throw new Fault ();
         } else if (cleft == null && cright != null) {
-          child = cright.split (left, vsize, state);
+          child = cright.split (left, vsize);
         } else if (cleft != null && cright == null) {
-          child = cleft.split (right, vsize, state);
+          child = cleft.split (right, vsize);
         } else {
           MemoryHeap.Cell c;
           MemoryHeap.Direction d;
@@ -64,7 +64,7 @@ public class Alloc extends Base {
             c = cleft;
           }
 
-          child = c.split (d, vsize, state);
+          child = c.split (d, vsize);
         }
 
         state.set (address, child.getOffset (), NOP);
