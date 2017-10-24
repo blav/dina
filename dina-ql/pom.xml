@@ -28,7 +28,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>us.blav.dina.Main</mainClass>
+          <mainClass>us.actar.dina.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>
