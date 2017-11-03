@@ -1,4 +1,6 @@
-package us.actar.dina;
+package us.actar.dina.reclaimers;
+
+import us.actar.dina.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +13,7 @@ import static java.util.Comparator.comparingDouble;
 import static java.util.Comparator.comparingInt;
 import static java.util.Optional.ofNullable;
 
-public class HeapReclaimerImpl implements HeapReclaimer {
+public class CumulativePenalty implements HeapReclaimer {
 
   private static final Comparator<Program> COMPARATOR =
     comparingInt (Program::getFaults).reversed ()
@@ -20,7 +22,7 @@ public class HeapReclaimerImpl implements HeapReclaimer {
   private static final Comparator<Program> COMPARATOR2 =
     comparingDouble ((ToDoubleFunction<Program>) p -> p.getFaults () / (1.0 + p.getCycles ())).reversed ();
 
-  public HeapReclaimerImpl (Machine machine) {
+  public CumulativePenalty (Machine machine) {
     this.machine = machine;
   }
 

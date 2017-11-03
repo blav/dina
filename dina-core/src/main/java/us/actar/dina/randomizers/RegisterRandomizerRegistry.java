@@ -22,7 +22,7 @@ public class RegisterRandomizerRegistry {
   private static final TypeLiteral<Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>> MAP =
     new TypeLiteral<Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>> () {};
 
-  public static Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> createRandomizers () {
+  public static Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> getRandomizers () {
     return Injector.getInstance (MAP);
   }
 

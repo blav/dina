@@ -1,13 +1,8 @@
 package us.actar.dina.dql.schema;
 
-import us.actar.dina.console.commands.Dump;
 import us.actar.dina.dql.EvaluableFunction;
-import us.actar.dina.metrics.Entropy;
-import us.actar.dina.dql.Value;
+import us.actar.dina.dql.functions.*;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,37 +15,31 @@ public class Schema {
   public static final String TABLE_PROGRAMS = "programs";
 
   public static final Column PROGRAM_ID = new Column ("id",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getId ())));
+    new EvaluableFunction (LONG, new Id ()::compute));
 
   public static final Column PROGRAM_FAULTS = new Column ("faults",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getFaults ())));
+    new EvaluableFunction (LONG, new Faults ()::compute));
 
   public static final Column PROGRAM_CYCLES = new Column ("cycles",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCycles ())));
+    new EvaluableFunction (LONG, new Cycles ()::compute));
 
   public static final Column PROGRAM_FORKS = new Column ("forks",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getForks ())));
+    new EvaluableFunction (LONG, new Forks ()::compute));
 
   public static final Column PROGRAM_SIZE = new Column ("size",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getSize ())));
+    new EvaluableFunction (LONG, new Size ()::compute));
 
   public static final Column PROGRAM_POSITION = new Column ("position",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getCell ().getOffset ())));
+    new EvaluableFunction (LONG, new Position ()::compute));
 
   public static final Column PROGRAM_IP = new Column ("ip",
-    new EvaluableFunction (LONG, c -> new Value ((long) c.getCurrentProgram ().getInstructionPointer ())));
+    new EvaluableFunction (LONG, new Ip ()::compute));
 
   public static final Column PROGRAM_ENTROPY = new Column ("entropy",
-    new EvaluableFunction (LONG, c -> new Value (new Entropy ().compute (c.getMachine (), c.getCurrentProgram ()))));
+    new EvaluableFunction (LONG, new Entropy ()::compute));
 
   public static final Column PROGRAM_CODE = new Column ("code",
-    new EvaluableFunction (STRING, c -> {
-      try {
-        return new Value (Dump.dump (c.getMachine (), c.getCurrentProgram (), new StringWriter ()).toString ());
-      } catch (IOException e) {
-        throw new UncheckedIOException (e);
-      }
-    }));
+    new EvaluableFunction (STRING, new Code ()::compute));
 
   public static final Table PROGRAM = new Table (TABLE_PROGRAMS,
     PROGRAM_ID,

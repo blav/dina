@@ -11,6 +11,8 @@ public interface Machine {
 
   Config getConfig ();
 
+  Handle install (MachineFilters mf);
+
   Heap getHeap ();
 
   Randomizer getRandomizer ();

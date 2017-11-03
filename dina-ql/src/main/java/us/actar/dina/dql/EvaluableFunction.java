@@ -1,19 +1,18 @@
 package us.actar.dina.dql;
 
 import us.actar.dina.dql.schema.PrimitiveType;
-
-import java.util.function.Function;
+import us.actar.dina.dql.functions.Operation;
 
 public class EvaluableFunction extends Evaluable {
 
-  private final Function<EvaluationContext, Value> function;
+  private final Operation operation;
 
-  public EvaluableFunction (PrimitiveType type, Function<EvaluationContext, Value> function) {
+  public EvaluableFunction (PrimitiveType type, Operation operation) {
     super (type);
-    this.function = function;
+    this.operation = operation;
   }
 
   public Value evaluate (EvaluationContext context) {
-    return function.apply (context);
+    return operation.compute (context);
   }
 }

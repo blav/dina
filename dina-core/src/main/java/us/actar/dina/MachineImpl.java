@@ -1,13 +1,19 @@
 package us.actar.dina;
 
 import com.google.inject.TypeLiteral;
+import us.actar.commons.Chain.Handle;
+import us.actar.dina.Config.Bootstrap;
 import us.actar.dina.randomizers.RegisterRandomizer;
 import us.actar.commons.Chain;
 import us.actar.commons.Chain.Filter;
 
 import java.util.*;
 
+import static java.util.Optional.ofNullable;
 import static us.actar.commons.Injector.getInstance;
+import static us.actar.dina.Heap.Direction.left;
+import static us.actar.dina.Heap.Direction.right;
+import static us.actar.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 
 public class MachineImpl implements Machine {
 
@@ -27,21 +33,30 @@ public class MachineImpl implements Machine {
 
   private int programIdGenerator;
 
+  private RegisterRandomizer<?> ipRandomizer;
+
   public MachineImpl (Config config) {
     this.config = config;
     this.heap = getInstance (Heap.FACTORY_TYPE).create (this);
     this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (this);
     this.programStates = new HashMap<> ();
     this.execution = new Chain<> (ExecutionStep.FILTER_TYPE);
+    this.ipRandomizer = createRandomizer (this, this.config.getInstructionSet ().getIpRandomizer ());
     this.execution.install ((chain, step) -> {
+      ProgramState state = step.getState ();
       try {
-        step.getOpcode ().getInstruction ().process (step.getMachine (), step.getState ());
+        state.setInstructionPointer (state.getInstructionPointer (), this.ipRandomizer);
+        step.getOpcode ().getInstruction ().process (step.getMachine (), state);
       } catch (Fault fault) {
-        step.getState ().incrementFaults ();
+        state.incrementFaults ();
       }
     });
 
     this.execution.installAll (config.getExecutionFilters ());
+
+    this.registry = new InstructionRegistry ();
+    this.config.getInstructionSet ().registerInstructions (this.registry);
+    this.boostrap ();
 
     HeapReclaimer reclaimer = getInstance (config.getReclaimer ().getName (),
       HeapReclaimer.FACTORY_TYPE).create (this);
@@ -52,34 +67,48 @@ public class MachineImpl implements Machine {
     }));
 
     this.reclaim.installAll (config.getReclaimerFilters ());
-    this.registry = new InstructionRegistry ();
-    this.config.getInstructionSet ().registerInstructions (this.registry);
 
-    this.boostrap ();
+    if (reclaimer instanceof MachineFilters)
+      install ((MachineFilters) reclaimer);
+  }
+
+  @Override
+  public Handle install (MachineFilters mf) {
+    List<Handle> handles = new ArrayList<> ();
+    ofNullable (mf.getReclaimFilter ()).map (this.reclaim::install).ifPresent (handles::add);
+    ofNullable (mf.getExecutionFilter ()).map (this.execution::install).ifPresent (handles::add);
+    return () -> handles.forEach (Handle::uninstall);
   }
 
   private void boostrap () {
-    List<String> boostrap = config.getBootstrapCode ();
-    System.out.printf ("bootstrap is %d bytes\n", boostrap.size ());
     try {
-      int size = boostrap.size ();
+      int size = config.getBootstraps ().stream ()
+        .map (Bootstrap::getCode).map (List::size).reduce (0, (s, i) -> s + i);
+
       Heap.Cell first = this.heap.getFirst ();
-      Heap.Cell c = first.split (Heap.Direction.right, (this.heap.size () - size) / 2);
-      Heap.Cell cell = first.split (Heap.Direction.right, size);
-
+      Heap.Cell c = first.split (right, (this.heap.size () + size) / 2);
+      Heap.Cell d = first.split (right, 1);
       c.free ();
-      if (cell.getSize () != boostrap.size ())
-        throw new IllegalArgumentException ();
 
-      Heap heap = getHeap ();
-      for (int i = 0; i < boostrap.size (); i++) {
-        int opcode = registry.getOpcode (boostrap.get (i));
-        heap.set (cell.getOffset () + i, opcode);
+      for (Bootstrap b : config.getBootstraps ()) {
+        List<String> boostrap = b.getCode ();
+        System.out.printf ("bootstrap is %d bytes\n", boostrap.size ());
+        Heap.Cell cell = c.split (left, boostrap.size ());
+        if (cell.getSize () != boostrap.size ())
+          throw new IllegalArgumentException ();
+
+        Heap heap = getHeap ();
+        for (int i = 0; i < boostrap.size (); i++) {
+          int opcode = registry.getOpcode (boostrap.get (i));
+          heap.set (cell.getOffset () + i, opcode);
+        }
+
+        ProgramState state = new ProgramState (cell, config.getInstructionSet ().getRegisters ());
+        state.setInstructionPointer (cell.getOffset (), RegisterRandomizer.NOP);
+        launch (state);
       }
 
-      ProgramState state = new ProgramState (cell, config.getInstructionSet ().getRegisters ());
-      state.setInstructionPointer (cell.getOffset (), RegisterRandomizer.NOP);
-      launch (state);
+      d.free ();
     } catch (Fault fault) {
       throw new RuntimeException ("", fault);
     }
@@ -134,9 +163,8 @@ public class MachineImpl implements Machine {
 
   @Override
   public void kill (int pid) {
-    ProgramState p = this.programStates.remove (pid);
-    if (p == null)
-      throw new IllegalStateException ("no such pid " + pid);
+    ProgramState p = ofNullable (this.programStates.remove (pid))
+      .orElseThrow (() -> new IllegalStateException ("no such pid " + pid));
 
     try {
       p.getCell ().free ();
@@ -168,7 +196,7 @@ public class MachineImpl implements Machine {
   }
 
   @Override
-  public <TYPE> Chain.Handle install (TypeLiteral<Filter<TYPE>> type, Filter<TYPE> filter) {
+  public <TYPE> Handle install (TypeLiteral<Filter<TYPE>> type, Filter<TYPE> filter) {
     if (type.equals (ExecutionStep.FILTER_TYPE)) {
       return execution.install ((Filter<ExecutionStep>) filter);
     } else if (type.equals (Reclaim.FILTER_TYPE)) {
@@ -181,8 +209,7 @@ public class MachineImpl implements Machine {
   @Override
   public void update () {
     // copy state list since it can be altered while in the loop
-    for (Map.Entry<Integer, ProgramState> state : new ArrayList<> (programStates.entrySet ()))
-      process (state.getValue ());
+    new ArrayList<> (programStates.values ()).forEach (this::process);
 
     ArrayList<Program> programs = new ArrayList<> ();
     reclaim.next (new Reclaim () {
@@ -198,9 +225,9 @@ public class MachineImpl implements Machine {
     });
 
     for (Program program : programs) {
-      program.getCell ().bytes ().forEach (i -> getHeap ().set (i , 0));
+      program.getCell ().bytes ().forEach (i -> getHeap ().set (i, 0));
       if (program.getChild () != null)
-        program.getChild ().bytes ().forEach (i -> getHeap ().set (i , 0));
+        program.getChild ().bytes ().forEach (i -> getHeap ().set (i, 0));
 
       kill (program.getId ());
     }

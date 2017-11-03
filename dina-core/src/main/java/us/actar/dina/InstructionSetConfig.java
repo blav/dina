@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.inject.TypeLiteral;
 import us.actar.dina.randomizers.RegisterRandomizerConfig;
-import us.actar.dina.randomizers.RegisterRandomizerRegistry;
 import us.actar.dina.randomizers.RegisterRandomizer;
 import us.actar.dina.randomizers.RegisterRandomizer.Name;
 
@@ -15,9 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.stream;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.joining;
-import static us.actar.dina.randomizers.NopConfig.INSTANCE;
+import static us.actar.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonTypeIdResolver (InstructionSetConfigTypeResolver.class)
@@ -53,14 +51,8 @@ public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig
   public Map<? extends Name, ? extends RegisterRandomizer> createRandomizers (Machine machine) {
     Map<NAME, RegisterRandomizer<?>> configs = new HashMap<> ();
     Map<String, ? extends RegisterRandomizerConfig> copy = new HashMap<> (this.registerRandomizers);
-    Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<?>>
-      registry = RegisterRandomizerRegistry.createRandomizers ();
-
-    for (NAME n : getNames ()) {
-      RegisterRandomizerConfig config = copy.remove (n.name ());
-      Class<? extends RegisterRandomizerConfig> configClass = ofNullable (config).orElse (INSTANCE).getClass ();
-      configs.put (n, RegisterRandomizerConfig.createRandomizer (machine, registry.get (configClass), config));
-    }
+    for (NAME n : getNames ())
+      configs.put (n, createRandomizer (machine, copy.remove (n.name ())));
 
     if (copy.size () > 0)
       throw new IllegalArgumentException ("no such randomizers in " +
@@ -74,6 +66,15 @@ public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig
     stream (getInstructions ()).forEach (f -> f.register (registry));
   }
 
+  public RegisterRandomizerConfig getIpRandomizer () {
+    return ipRandomizer;
+  }
+
+  public THISTYPE setIpRandomizer (RegisterRandomizerConfig ipRandomizer) {
+    this.ipRandomizer = ipRandomizer;
+    return (THISTYPE) this;
+  }
+
   @JsonIgnore
   public int getRegisters () {
     return registers;
@@ -83,6 +84,8 @@ public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig
   public int getInstructionsCount () {
     return getInstructions ().length;
   }
+
+  public RegisterRandomizerConfig ipRandomizer;
 
   protected abstract Collection<NAME> getNames ();
 

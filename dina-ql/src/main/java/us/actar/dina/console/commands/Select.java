@@ -6,17 +6,20 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import org.jline.builtins.Completers.TreeCompleter;
+import us.actar.commons.Injector;
 import us.actar.dina.Machine;
 import us.actar.dina.ProgramState;
 import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 import us.actar.dina.dql.*;
+import us.actar.dina.dql.functions.Operation;
 import us.actar.dina.dql.schema.Column;
 import us.actar.dina.dql.schema.Schema;
 import us.actar.dina.dql.schema.Table;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import static java.lang.Math.signum;
@@ -95,9 +98,13 @@ public class Select implements Command {
 
         asciiTable.addRule ();
 
-        machine.getPrograms ().stream ()
+        Map<String, Operation> operations = Injector.getMap (String.class, Operation.class);
+        List<EvaluationContext> contexts = machine.getPrograms ().stream ()
           .map (p -> new EvaluationContext (machine, p))
           .filter (e -> where.evaluate (e).getBoolean ())
+          .collect (toList ());
+
+        contexts.stream ()
           .sorted (order)
           .skip (offset)
           .limit (limit)
@@ -109,7 +116,7 @@ public class Select implements Command {
             asciiTable.addRule ();
           });
 
-        System.out.println (asciiTable.render ());
+        System.out.println (asciiTable.render (context.getReader ().getTerminal ().getWidth ()));
         return true;
       } catch (Exception e) {
         System.err.println (e.getMessage ());

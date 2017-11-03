@@ -1,16 +1,14 @@
-package us.actar.dina.metrics;
-
-import us.actar.dina.ProgramState;
-import us.actar.dina.Machine;
+package us.actar.dina;
 
 import static java.lang.Math.log;
 import static java.util.Arrays.stream;
 
-public class Entropy {
-  public double compute (Machine machine, ProgramState program) {
+public class Metrics {
+
+  public static double entropy (Machine machine, ProgramState program) {
     int base = machine.getConfig ().getInstructionSet ().getInstructionsCount ();
     if (base <= 1)
-      return 0;
+      return 0.0;
 
     double [] counts = new double [base];
     program.getCell ().bytes ()
@@ -23,5 +21,13 @@ public class Entropy {
       .map (d -> d / (double) program.getCell ().getSize ())
       .map (p -> -p * log (p))
       .sum () / log ((double) base);
+  }
+
+  public static long hash (Machine machine, ProgramState p) {
+    Heap heap = machine.getHeap ();
+    return p.getCell ().bytes ()
+      .asLongStream ()
+      .map (i -> heap.get ((int) i) & 255)
+      .reduce (1, (h, i) -> h * 31 + i);
   }
 }

@@ -5,18 +5,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>us.blav</groupId>
+    <groupId>us.actar</groupId>
     <artifactId>dina</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>us.blav</groupId>
+  <groupId>us.actar</groupId>
   <artifactId>dina-core</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
-      <groupId>us.blav</groupId>
+      <groupId>us.actar</groupId>
       <artifactId>commons</artifactId>
       <version>${dina.version}</version>
     </dependency>

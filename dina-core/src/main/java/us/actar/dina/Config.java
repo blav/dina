@@ -11,7 +11,7 @@ public class Config {
   public static final String DEFAULT = "default";
 
   public Config () {
-    this.bootstrapCode = new ArrayList<> ();
+    this.bootstraps = new ArrayList<> ();
     this.executionFilters = new ArrayList<> ();
     this.reclaimerFilters = new ArrayList<> ();
     this.randomizer = new Randomizer ().setName (DEFAULT).setSeed (0);
@@ -82,6 +82,25 @@ public class Config {
 
   }
 
+  public static class Bootstrap {
+
+    @JsonProperty("code")
+    private final List<String> code;
+
+    public Bootstrap () {
+      this.code = new ArrayList<> ();
+    }
+
+    public Bootstrap setCode (String ... code) {
+      this.code.clear ();
+      this.code.addAll (Arrays.asList (code));
+      return this;
+    }
+
+    public List<String> getCode () {
+      return code;
+    }
+  }
 
   public int getMemory () {
     return memory;
@@ -110,8 +129,8 @@ public class Config {
     return this;
   }
 
-  public List<String> getBootstrapCode () {
-    return bootstrapCode;
+  public List<Bootstrap> getBootstraps () {
+    return bootstraps;
   }
 
   public Reclaimer getReclaimer () {
@@ -124,7 +143,7 @@ public class Config {
   }
 
   public Config addBoostrapCode (String... code) {
-    this.bootstrapCode.addAll (Arrays.asList (code));
+    this.bootstraps.add (new Bootstrap ().setCode (code));
     return this;
   }
 
@@ -152,8 +171,8 @@ public class Config {
   @JsonProperty("memory")
   private int memory;
 
-  @JsonProperty("bootstrap")
-  private List<String> bootstrapCode;
+  @JsonProperty("bootstraps")
+  private List<Bootstrap> bootstraps;
 
   @JsonProperty("reclaimer")
   private Reclaimer reclaimer;

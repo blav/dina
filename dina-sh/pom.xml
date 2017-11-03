@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>us.blav</groupId>
+    <groupId>us.actar</groupId>
     <artifactId>dina</artifactId>
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>us.blav</groupId>
+  <groupId>us.actar</groupId>
   <artifactId>dina-sh</artifactId>
   <packaging>jar</packaging>
 
@@ -28,7 +28,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>us.actar.dina.Main</mainClass>
+          <mainClass>us.actar.dina.TJL</mainClass>
           <!--
           <arguments>
             <argument>color</argument>
@@ -42,17 +42,17 @@
 
     <!-- project -->
     <dependency>
-      <groupId>us.blav</groupId>
+      <groupId>us.actar</groupId>
       <artifactId>commons</artifactId>
       <version>${dina.version}</version>
     </dependency>
     <dependency>
-      <groupId>us.blav</groupId>
+      <groupId>us.actar</groupId>
       <artifactId>dina-core</artifactId>
       <version>${dina.version}</version>
     </dependency>
     <dependency>
-      <groupId>us.blav</groupId>
+      <groupId>us.actar</groupId>
       <artifactId>dina-is-is1</artifactId>
       <version>${dina.version}</version>
     </dependency>

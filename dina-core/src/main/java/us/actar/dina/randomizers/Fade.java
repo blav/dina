@@ -22,7 +22,7 @@ public class Fade extends AbstractRegisterRandomizer<FadeConfig> {
     if (d <= 0)
       return value;
 
-    int distance = getConfig ().getDistance ();
+    int distance = getConfig ().getDistance () * radius;
     if (d >= distance)
       throw new Fault ();
 
