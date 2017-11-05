@@ -1,7 +1,7 @@
 package us.actar.dina.console.commands;
 
-import us.actar.dina.console.Command;
 import us.actar.dina.Program;
+import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
 import java.util.Collection;

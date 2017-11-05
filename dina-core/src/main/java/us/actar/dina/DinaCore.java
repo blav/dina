@@ -3,7 +3,7 @@ package us.actar.dina;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import us.actar.commons.ModuleSupplier;
-import us.actar.dina.filters.FiltersModule;
+import us.actar.dina.extensions.ExtensionsModule;
 import us.actar.dina.randomizers.RandomizersModule;
 import us.actar.dina.reclaimers.ReclaimersModule;
 
@@ -16,7 +16,7 @@ public class DinaCore implements ModuleSupplier {
     return new AbstractModule () {
       @Override
       protected void configure () {
-        install (new FiltersModule ());
+        install (new ExtensionsModule ());
         install (new RandomizersModule ());
         install (new ReclaimersModule ());
         bind (Heap.FACTORY_TYPE)

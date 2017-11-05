@@ -8,7 +8,10 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.StatementVisitorAdapter;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.Limit;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectVisitorAdapter;
 import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
@@ -25,8 +28,8 @@ public class DatabaseSelect implements Command {
 
   @Override
   public boolean run (Context context, Scanner arguments) {
-    ConnectionPool attribute = context.getAttribute (ConnectionPool.class);
-    if (attribute.isOpen () == false) {
+    ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);
+    if (extension.isOpen () == false) {
       context.getErr ().println ("no open database.");
       return true;
     }
@@ -74,7 +77,7 @@ public class DatabaseSelect implements Command {
     if (select.getFromItem () == null)
       select.setFromItem (new Table (Schema.TABLE_PROGRAM));
 
-    try (Connection c = attribute.getConnection ()) {
+    try (Connection c = extension.getConnection ()) {
       try (PreparedStatement ps = c.prepareStatement (statement.toString ())) {
         ResultSet rs = ps.executeQuery ();
         AT_Context asciiContext = new AT_Context ();

@@ -2,18 +2,13 @@ package us.actar.dina.db;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import com.google.inject.multibindings.MapBinder;
 import us.actar.commons.ModuleSupplier;
 import us.actar.dina.console.CommandsRegistry;
-import us.actar.dina.console.Context.Attribute;
 import us.actar.dina.console.commands.*;
 
 import java.util.Properties;
 
-import static com.google.inject.multibindings.MapBinder.newMapBinder;
-import static us.actar.dina.console.Context.Attribute.KEY;
-import static us.actar.dina.console.Context.Attribute.VALUE;
-import static us.actar.dina.console.Context.Attribute.registerAttribute;
+import static us.actar.dina.console.Context.registerExtension;
 
 public class DatabaseModule implements ModuleSupplier {
 
@@ -30,7 +25,7 @@ public class DatabaseModule implements ModuleSupplier {
           .registerCommand ("db-clear", DatabaseClear.class)
           .done ();
 
-        registerAttribute (binder (), ConnectionPool.class);
+        registerExtension (binder (), ConnectionPoolExtension.class);
 
         // disable c3p0 logs
         Properties p = new Properties (System.getProperties ());

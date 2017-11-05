@@ -14,7 +14,6 @@
     <module>commons</module>
     <module>dina-core</module>
     <module>dina-is-is1</module>
-    <module>dina-ql</module>
     <module>dina-sh</module>
     <module>dina-db</module>
   </modules>

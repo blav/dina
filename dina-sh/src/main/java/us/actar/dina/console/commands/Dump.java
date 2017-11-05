@@ -1,19 +1,16 @@
 package us.actar.dina.console.commands;
 
-import javafx.scene.control.IndexRange;
 import us.actar.dina.Heap;
-import us.actar.dina.Opcode;
-import us.actar.dina.console.Command;
-import us.actar.dina.ProgramState;
 import us.actar.dina.Machine;
+import us.actar.dina.Opcode;
+import us.actar.dina.ProgramState;
+import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Dump implements Command {
 

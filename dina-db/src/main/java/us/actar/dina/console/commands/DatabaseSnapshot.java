@@ -1,11 +1,15 @@
 package us.actar.dina.console.commands;
 
-import us.actar.dina.*;
+import us.actar.dina.Machine;
+import us.actar.dina.Program;
+import us.actar.dina.ProgramState;
 import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
 import java.io.StringWriter;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,13 +29,13 @@ public class DatabaseSnapshot implements Command {
   @Override
   public boolean run (Context context, Scanner arguments) {
     return context.executePaused (c -> {
-      ConnectionPool attribute = context.getAttribute (ConnectionPool.class);
-      if (attribute.isOpen () == false) {
+      ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);
+      if (extension.isOpen () == false) {
         context.getErr ().println ("no database open.");
         return true;
       }
 
-      try (Connection connection = attribute.getConnection ()) {
+      try (Connection connection = extension.getConnection ()) {
         Integer snapshot = null;
         try (PreparedStatement s = connection.prepareStatement ("CALL NEXT VALUE FOR snapshot_id")) {
           try (ResultSet rs = s.executeQuery ()) {

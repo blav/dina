@@ -4,11 +4,6 @@ import us.actar.dina.Fault;
 import us.actar.dina.Machine;
 import us.actar.dina.ProgramState;
 
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
-import static us.actar.dina.randomizers.NopConfig.INSTANCE;
-
 public interface RegisterRandomizer<CONF extends RegisterRandomizerConfig> {
 
   interface Factory<CONF extends RegisterRandomizerConfig> {

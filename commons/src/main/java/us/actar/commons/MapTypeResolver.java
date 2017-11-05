@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
-import static us.actar.commons.Injector.getMap;
 
 public class MapTypeResolver<TYPE> implements TypeIdResolver {
 

@@ -78,13 +78,6 @@ public class ProgramState implements Program {
     this.forks ++;
   }
 
-  public void set (int register, int value, RegisterRandomizer<?> randomizer) throws Fault {
-    value = randomizer.randomizeValue (this, value);
-    ensureValidRegister (register);
-    ensureValidValue (value);
-    this.registers[register] = value;
-  }
-
   public void incrementIP () throws Fault {
     setInstructionPointer (getInstructionPointer () + 1, RegisterRandomizer.NOP);
   }
@@ -97,6 +90,13 @@ public class ProgramState implements Program {
   public int get (int register, RegisterRandomizer<?> randomizer) throws Fault {
     ensureValidRegister (register);
     return randomizer.randomizeValue (this, this.registers [register]);
+  }
+
+  public void set (int register, int value, RegisterRandomizer<?> randomizer) throws Fault {
+    value = randomizer.randomizeValue (this, value);
+    ensureValidRegister (register);
+    ensureValidValue (value);
+    this.registers[register] = value;
   }
 
   public int[] getRegisters () {

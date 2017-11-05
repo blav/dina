@@ -1,8 +1,8 @@
 package us.actar.dina.randomizers;
 
-import us.actar.dina.Randomizer;
-import us.actar.dina.ProgramState;
 import us.actar.dina.Machine;
+import us.actar.dina.ProgramState;
+import us.actar.dina.Randomizer;
 
 public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
 

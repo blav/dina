@@ -12,14 +12,14 @@ public class DatabaseOpen implements Command {
 
   @Override
   public boolean run (Context context, Scanner arguments) {
-    ConnectionPool attribute = context.getAttribute (ConnectionPool.class);
-    if (attribute.isOpen ()) {
+    ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);
+    if (extension.isOpen ()) {
       context.getErr ().printf ("database %s already open.\n", context);
       return true;
     }
 
-    attribute.open (arguments.next ());
-    try (Connection connection = attribute.getConnection ()) {
+    extension.open (arguments.next ());
+    try (Connection connection = extension.getConnection ()) {
       ;
       try (PreparedStatement s = connection.prepareStatement (
         "CREATE TABLE IF NOT EXISTS program (" +

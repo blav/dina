@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.google.inject.TypeLiteral;
-import us.actar.dina.randomizers.RegisterRandomizerConfig;
 import us.actar.dina.randomizers.RegisterRandomizer;
 import us.actar.dina.randomizers.RegisterRandomizer.Name;
+import us.actar.dina.randomizers.RegisterRandomizerConfig;
 
 import java.util.Collection;
 import java.util.HashMap;

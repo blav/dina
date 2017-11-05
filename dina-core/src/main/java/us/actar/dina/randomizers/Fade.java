@@ -1,8 +1,8 @@
 package us.actar.dina.randomizers;
 
+import us.actar.dina.Fault;
 import us.actar.dina.Heap;
 import us.actar.dina.Machine;
-import us.actar.dina.Fault;
 import us.actar.dina.ProgramState;
 
 public class Fade extends AbstractRegisterRandomizer<FadeConfig> {

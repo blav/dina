@@ -12,8 +12,6 @@ public class Config {
 
   public Config () {
     this.bootstraps = new ArrayList<> ();
-    this.executionFilters = new ArrayList<> ();
-    this.reclaimerFilters = new ArrayList<> ();
     this.randomizer = new Randomizer ().setName (DEFAULT).setSeed (0);
     this.reclaimer = new Reclaimer ().setThresholdLow (.6).setThresholdHigh (.9);
   }
@@ -147,24 +145,6 @@ public class Config {
     return this;
   }
 
-  public List<String> getExecutionFilters () {
-    return executionFilters;
-  }
-
-  public Config addExecutionFilters (String... filters) {
-    this.executionFilters.addAll (Arrays.asList (filters));
-    return this;
-  }
-
-  public List<String> getReclaimerFilters () {
-    return reclaimerFilters;
-  }
-
-  public Config addReclaimerFilters (String... filters) {
-    this.reclaimerFilters.addAll (Arrays.asList (filters));
-    return this;
-  }
-
   @JsonProperty("randomizer")
   private Randomizer randomizer;
 
@@ -179,11 +159,5 @@ public class Config {
 
   @JsonProperty("instruction-set")
   private InstructionSetConfig instructionSet;
-
-  @JsonProperty("execution-filters")
-  private final List<String> executionFilters;
-
-  @JsonProperty("reclaimer-filters")
-  private final List<String> reclaimerFilters;
 
 }

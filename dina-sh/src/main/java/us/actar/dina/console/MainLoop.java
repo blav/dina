@@ -6,7 +6,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static us.actar.dina.console.MainLoop.State.paused;
-import static us.actar.dina.console.MainLoop.State.running;
 import static us.actar.dina.console.MainLoop.State.stopped;
 
 public class MainLoop implements Runnable {
@@ -34,8 +33,8 @@ public class MainLoop implements Runnable {
     this.lock = new ReentrantLock ();
     this.requested = this.lock.newCondition ();
     this.actualized = this.lock.newCondition ();
-    this.actualState = running;
-    this.requestedState = running;
+    this.actualState = stopped;
+    this.requestedState = paused;
   }
 
   public State getActualState () {

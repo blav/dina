@@ -9,7 +9,9 @@ public class DebugStop implements Command {
   @Override
   public boolean run (Context context, Scanner arguments) {
     return context.executePaused (c -> {
-      context.getAttribute (DebugContext.class).uninstall (context, arguments.nextLong ());
+      int pid = arguments.nextInt ();
+      if (context.getExtension (DebugExtension.class).uninstall (pid) == false)
+        context.getErr ().printf ("program %d not in debug mode.\n", pid);
       return true;
     });
   }

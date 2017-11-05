@@ -1,7 +1,7 @@
 package us.actar.dina.is.lib;
 
-import us.actar.dina.Heap;
 import us.actar.dina.Fault;
+import us.actar.dina.Heap;
 import us.actar.dina.InstructionRegistry;
 import us.actar.dina.randomizers.RegisterRandomizer;
 

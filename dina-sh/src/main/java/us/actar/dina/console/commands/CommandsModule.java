@@ -2,9 +2,9 @@ package us.actar.dina.console.commands;
 
 import com.google.inject.AbstractModule;
 import us.actar.dina.console.CommandsRegistry;
-import us.actar.dina.console.Context;
+import us.actar.dina.console.StatsExtension;
 
-import static us.actar.dina.console.Context.Attribute.registerAttribute;
+import static us.actar.dina.console.Context.registerExtension;
 
 public class CommandsModule extends AbstractModule {
   @Override
@@ -21,6 +21,7 @@ public class CommandsModule extends AbstractModule {
       .registerCommand ("debug-stop", DebugStop.class)
       .done ();
 
-    registerAttribute (binder (), DebugContext.class);
+    registerExtension (binder (), DebugExtension.class);
+    registerExtension (binder (), StatsExtension.class);
   }
 }

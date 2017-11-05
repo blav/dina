@@ -2,9 +2,9 @@ package us.actar.dina.is.is1;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-import us.actar.dina.InstructionSetConfig;
 import us.actar.commons.MapTypeResolver;
 import us.actar.commons.ModuleSupplier;
+import us.actar.dina.InstructionSetConfig;
 
 public class IS1Module implements ModuleSupplier {
   @Override

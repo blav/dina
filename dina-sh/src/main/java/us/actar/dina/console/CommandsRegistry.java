@@ -7,8 +7,6 @@ import us.actar.commons.Injector;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Arrays.stream;
-
 public class CommandsRegistry {
 
   public interface RegistryBuilder {

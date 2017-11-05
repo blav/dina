@@ -11,13 +11,13 @@ import java.util.Scanner;
 public class DatabaseClear implements Command {
   @Override
   public boolean run (Context context, Scanner arguments) {
-    ConnectionPool attribute = context.getAttribute (ConnectionPool.class);
-    if (attribute.isOpen () == false) {
+    ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);
+    if (extension.isOpen () == false) {
       context.getErr ().println ("no open database.");
       return true;
     }
 
-    try (Connection connection = attribute.getConnection ()) {
+    try (Connection connection = extension.getConnection ()) {
       try (PreparedStatement ps = connection.prepareStatement ("TRUNCATE SCHEMA public AND COMMIT")) {
         ps.execute ();
       }

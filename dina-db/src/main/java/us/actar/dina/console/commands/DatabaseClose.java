@@ -8,13 +8,13 @@ import java.util.Scanner;
 public class DatabaseClose implements Command {
   @Override
   public boolean run (Context context, Scanner arguments) {
-    ConnectionPool attribute = context.getAttribute (ConnectionPool.class);
-    if (attribute.isOpen () == false) {
+    ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);
+    if (extension.isOpen () == false) {
       context.getErr ().println ("no open database.");
       return true;
     }
 
-    attribute.close ();
+    extension.close ();
     return true;
   }
 }

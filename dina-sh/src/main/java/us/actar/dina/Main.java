@@ -13,7 +13,6 @@ import org.jline.utils.AttributedStyle;
 import us.actar.dina.console.CommandsRegistry;
 import us.actar.dina.console.Context;
 import us.actar.dina.console.MainLoop;
-import us.actar.dina.console.Stats;
 import us.actar.dina.console.commands.Error;
 import us.actar.dina.is.is1.IS1Config;
 import us.actar.dina.is.is1.IS1Randomizers;
@@ -62,13 +61,6 @@ public class Main {
         .setThresholdLow (.7)
       )
       .setMemory (100000)
-      .addExecutionFilters (
-        //"trace-forks"
-        //, "trace-instructions"
-      )
-      .addReclaimerFilters (
-        //"trace-reclaims"
-      )
       .addBoostrapCode (
         "label0",
         "find_forward_label0_into_r0",
@@ -119,24 +111,7 @@ public class Main {
 
     config = mapper.reader ().forType (Config.class).readValue (new StringReader (out.toString ()));
 
-    MachineImpl vm = new MachineImpl (config);
-    Stats stats = new Stats ();
-    vm.install (ExecutionStep.FILTER_TYPE, (chain, step) -> {
-      chain.next (new ExecutionStepDecorator (step) {
-        @Override
-        public Machine getMachine () {
-          return new MachineDecorator (step.getMachine ()) {
-            @Override
-            public long launch (ProgramState state) {
-              long launch = super.launch (state);
-              stats.programs = getMachine ().getPrograms ().size ();
-              return launch;
-            }
-          };
-        }
-      });
-    });
-
+    Machine vm = new Machine (config);
     MainLoop loop = new MainLoop (vm);
     ExecutorService executor = Executors.newFixedThreadPool (1);
     executor.execute (loop);
@@ -151,7 +126,7 @@ public class Main {
       .build ();
 
     reader.setOpt (LineReader.Option.HISTORY_INCREMENTAL);
-    try (Context context = new Context (reader, loop, stats)) {
+    try (Context context = new Context (reader, loop)) {
       System.out.println ("Enter a command (h for help)");
       for (boolean run = true; run; ) {
         try {
@@ -171,6 +146,5 @@ public class Main {
 
     loop.requestState (MainLoop.State.stopped);
     executor.shutdown ();
-
   }
 }
