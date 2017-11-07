@@ -61,7 +61,7 @@ public class ImmediatePenalty implements HeapReclaimer {
   @Override
   public Filter<Execute> getExecuteFilter () {
     return (chain, execute) -> {
-      ProgramState program = execute.getState ();
+      Program program = execute.getState ();
       int faultsBefore = program.getFaults ();
       chain.next (execute);
 

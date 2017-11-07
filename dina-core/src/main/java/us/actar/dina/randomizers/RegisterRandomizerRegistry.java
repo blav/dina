@@ -14,13 +14,16 @@ import static com.google.inject.multibindings.MapBinder.newMapBinder;
 public class RegisterRandomizerRegistry {
 
   private static final TypeLiteral<Class<? extends RegisterRandomizerConfig>> KEY =
-    new TypeLiteral<Class<? extends RegisterRandomizerConfig>> () {};
+    new TypeLiteral<Class<? extends RegisterRandomizerConfig>> () {
+    };
 
   private static final TypeLiteral<RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> VALUE =
-    new TypeLiteral<RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> () {};
+    new TypeLiteral<RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> () {
+    };
 
   private static final TypeLiteral<Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>> MAP =
-    new TypeLiteral<Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>> () {};
+    new TypeLiteral<Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>>> () {
+    };
 
   public static Map<Class<? extends RegisterRandomizerConfig>, RegisterRandomizer.Factory<? extends RegisterRandomizerConfig>> getRandomizers () {
     return Injector.getInstance (MAP);

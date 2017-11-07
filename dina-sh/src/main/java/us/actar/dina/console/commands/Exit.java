@@ -7,6 +7,7 @@ import us.actar.dina.console.MainLoop;
 import java.util.Scanner;
 
 public class Exit implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     context.getLoop ().requestState (MainLoop.State.stopped);

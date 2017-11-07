@@ -6,6 +6,6 @@ public class Fault extends Exception {
   }
 
   public Fault (Throwable x) {
-    super(x);
+    super (x);
   }
 }

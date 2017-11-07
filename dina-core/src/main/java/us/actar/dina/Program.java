@@ -1,19 +1,94 @@
 package us.actar.dina;
 
-public interface Program {
+import us.actar.dina.randomizers.RegisterRandomizer;
 
-  Heap.Cell getCell ();
+public class Program {
 
-  Heap.Cell getChild ();
+  private final Heap.Cell cell;
 
-  int getInstructionPointer ();
+  private final Registers registers;
 
-  int getId ();
+  private Heap.Cell child;
 
-  int getForks ();
+  private int instructionPointer;
 
-  int getFaults ();
+  private int id;
 
-  int getCycles ();
+  private int cycles;
 
+  private int forks;
+
+  private int faults;
+
+  public Program (Heap.Cell cell, InstructionSetConfig registers) {
+    this.cell = cell;
+    this.registers = registers.createRegisters (this);
+  }
+
+  public Heap.Cell getCell () {
+    return cell;
+  }
+
+  public Heap.Cell getChild () {
+    return child;
+  }
+
+  public void setChild (Heap.Cell child) throws Fault {
+    if (child != null && this.child != null)
+      throw new Fault ();
+
+    this.child = child;
+  }
+
+  public Registers getRegisters () {
+    return registers;
+  }
+
+  public int getInstructionPointer () {
+    return instructionPointer;
+  }
+
+  public void setInstructionPointer (int instructionPointer, RegisterRandomizer<?> randomizer) throws Fault {
+    instructionPointer = randomizer.randomizeValue (this, instructionPointer);
+    if (instructionPointer < 0 || instructionPointer >= this.cell.getMemoryHeap ().size ())
+      throw new Fault ();
+
+    this.instructionPointer = instructionPointer;
+  }
+
+  public int getId () {
+    return id;
+  }
+
+  public void setId (int id) {
+    this.id = id;
+  }
+
+  public int getCycles () {
+    return cycles;
+  }
+
+  public void incrementCycles () {
+    this.cycles++;
+  }
+
+  public int getForks () {
+    return forks;
+  }
+
+  public void incrementForks () {
+    this.forks++;
+  }
+
+  public void incrementIP () throws Fault {
+    setInstructionPointer (getInstructionPointer () + 1, RegisterRandomizer.NOP);
+  }
+
+  public int getFaults () {
+    return faults;
+  }
+
+  public void incrementFaults () {
+    this.faults++;
+  }
 }

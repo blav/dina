@@ -30,12 +30,12 @@ public class MemoryHeapTest {
     assertCells ("[0-F-100[", new Heap (100));
   }
 
-  @Test(expected = Fault.class)
+  @Test (expected = Fault.class)
   public void split_right_should_not_exceed_cell_size () throws Fault {
     new Heap (100).getFirst ().split (Heap.Direction.right, 101);
   }
 
-  @Test(expected = Fault.class)
+  @Test (expected = Fault.class)
   public void split_left_should_not_exceed_cell_size () throws Fault {
     new Heap (100).getFirst ().split (Heap.Direction.left, 101);
   }
@@ -201,7 +201,7 @@ public class MemoryHeapTest {
     assertCells ("[0-I-10[, [10-F-90[, [90-I-100[", memory);
   }
 
-  @Test(expected = Fault.class)
+  @Test (expected = Fault.class)
   public void freeing_free_cell_should_throw () throws Fault {
     new Heap (100).getFirst ().free ();
   }

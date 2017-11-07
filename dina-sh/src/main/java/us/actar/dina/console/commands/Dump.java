@@ -3,7 +3,7 @@ package us.actar.dina.console.commands;
 import us.actar.dina.Heap;
 import us.actar.dina.Machine;
 import us.actar.dina.Opcode;
-import us.actar.dina.ProgramState;
+import us.actar.dina.Program;
 import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class Dump implements Command {
 
-  public static <A extends Appendable> A dump (Machine machine, ProgramState state, A out) {
+  public static <A extends Appendable> A dump (Machine machine, Program state, A out) {
     try {
       Heap.Cell cell = state.getCell ();
       for (int i = 0; i < cell.getSize (); i++) {
@@ -29,7 +29,7 @@ public class Dump implements Command {
     }
   }
 
-  public static <A extends Appendable> A rawDump (Machine machine, ProgramState state, A out) {
+  public static <A extends Appendable> A rawDump (Machine machine, Program state, A out) {
     state.getCell ().bytes ()
       .boxed ()
       .map (machine.getHeap ()::get)
@@ -50,7 +50,7 @@ public class Dump implements Command {
   public boolean run (Context context, Scanner scanner) {
     try {
       int pid = scanner.nextInt ();
-      ProgramState p = context.getLoop ().getMachine ().getProgram (pid);
+      Program p = context.getLoop ().getMachine ().getProgram (pid);
       if (p == null) {
         context.getErr ().printf ("no such program %d\n", pid);
       } else {

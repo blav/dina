@@ -22,6 +22,8 @@ public class CumulativePenalty implements HeapReclaimer {
   private static final Comparator<Program> COMPARATOR2 =
     comparingDouble ((ToDoubleFunction<Program>) p -> p.getFaults () / (1.0 + p.getCycles ())).reversed ();
 
+  private final Machine machine;
+
   public CumulativePenalty (Machine machine) {
     this.machine = machine;
   }
@@ -52,7 +54,5 @@ public class CumulativePenalty implements HeapReclaimer {
       }
     };
   }
-
-  private final Machine machine;
 
 }

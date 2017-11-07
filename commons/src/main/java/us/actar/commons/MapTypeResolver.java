@@ -20,9 +20,9 @@ import static java.util.stream.Collectors.toMap;
 
 public class MapTypeResolver<TYPE> implements TypeIdResolver {
 
-  private JavaType baseType;
-
   private final TypeLiteral<Class<? extends TYPE>> classType;
+
+  private JavaType baseType;
 
   private Map<String, Class<? extends TYPE>> mapping;
 
@@ -30,14 +30,6 @@ public class MapTypeResolver<TYPE> implements TypeIdResolver {
 
   public MapTypeResolver (TypeLiteral<TYPE> type) {
     this.classType = newClassTypeLiteral (type);
-  }
-
-  public interface RegistryBuilder<TYPE> {
-
-    RegistryBuilder<TYPE> registerType (String typeId, Class<? extends TYPE> typeClass);
-
-    void done ();
-
   }
 
   public static <TYPE> RegistryBuilder<TYPE> newBuilder (Binder binder, TypeLiteral<TYPE> baseType) {
@@ -105,5 +97,13 @@ public class MapTypeResolver<TYPE> implements TypeIdResolver {
   @Override
   public String getDescForKnownTypeIds () {
     return "register " + classType + " as type id";
+  }
+
+  public interface RegistryBuilder<TYPE> {
+
+    RegistryBuilder<TYPE> registerType (String typeId, Class<? extends TYPE> typeClass);
+
+    void done ();
+
   }
 }

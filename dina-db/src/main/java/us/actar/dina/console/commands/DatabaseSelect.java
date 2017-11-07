@@ -95,7 +95,7 @@ public class DatabaseSelect implements Command {
               return "error: " + e.getMessage ();
             }
           })
-          .collect(toList())
+          .collect (toList ())
         );
 
         asciiTable.addRule ();

@@ -2,6 +2,10 @@ package us.actar.dina.randomizers;
 
 public class ShiftConfig extends RegisterRandomizerConfig {
 
+  private int probability;
+
+  private int value;
+
   public ShiftConfig () {
     this.probability = 100;
     this.value = 1;
@@ -24,9 +28,5 @@ public class ShiftConfig extends RegisterRandomizerConfig {
     this.value = value;
     return this;
   }
-
-  private int probability;
-
-  private int value;
 
 }

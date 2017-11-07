@@ -9,14 +9,6 @@ import java.util.Map;
 
 public class CommandsRegistry {
 
-  public interface RegistryBuilder {
-
-    RegistryBuilder registerCommand (String names, Class<? extends Command> command);
-
-    void done ();
-
-  }
-
   public static Command getCommand (String name) {
     return getCommands ().get (name);
   }
@@ -40,5 +32,13 @@ public class CommandsRegistry {
         commands.forEach ((k, v) -> mb.addBinding (k).to (v));
       }
     };
+  }
+
+  public interface RegistryBuilder {
+
+    RegistryBuilder registerCommand (String names, Class<? extends Command> command);
+
+    void done ();
+
   }
 }

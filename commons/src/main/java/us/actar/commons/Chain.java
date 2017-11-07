@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.max;
+import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableList;
 
 public class Chain<IN> {
@@ -12,15 +13,10 @@ public class Chain<IN> {
 
   private State<IN> state;
 
-  public interface Handle {
-
-    void uninstall ();
-
-  }
-
-  public Chain () {
+  public Chain (Filter<IN>... filters) {
     this.filters = new ArrayList<> ();
     this.state = new State<> (new ArrayList<> ());
+    stream (filters).forEach (this::install);
   }
 
   public synchronized Handle install (Filter<IN> filter) {
@@ -43,6 +39,16 @@ public class Chain<IN> {
     this.state.next (in);
   }
 
+  private void updateState () {
+    this.state = new State<> (unmodifiableList (new ArrayList<> (this.filters)));
+  }
+
+  public interface Handle {
+
+    void uninstall ();
+
+  }
+
   @FunctionalInterface
   public interface Filter<IN> {
 
@@ -52,7 +58,7 @@ public class Chain<IN> {
 
   public static class State<IN> {
 
-    protected final List<Filter<IN>> filters;
+    private final List<Filter<IN>> filters;
 
     private int current;
 
@@ -67,13 +73,9 @@ public class Chain<IN> {
       if (this.current == filters.size ()) {
         this.current = 0;
       } else {
-        this.filters.get (current ++).next (this, in);
+        this.filters.get (current++).next (this, in);
       }
     }
-  }
-
-  private void updateState () {
-    this.state = new State<> (unmodifiableList (new ArrayList<> (this.filters)));
   }
 }
 

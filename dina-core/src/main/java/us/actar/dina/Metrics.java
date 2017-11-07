@@ -5,16 +5,16 @@ import static java.util.Arrays.stream;
 
 public class Metrics {
 
-  public static double entropy (Machine machine, ProgramState program) {
+  public static double entropy (Machine machine, Program program) {
     int base = machine.getConfig ().getInstructionSet ().getInstructionsCount ();
     if (base <= 1)
       return 0.0;
 
-    double [] counts = new double [base];
+    double[] counts = new double[base];
     program.getCell ().bytes ()
       .map (machine.getHeap ()::get)
       .filter (opcode -> opcode >= 00 && opcode < base)
-      .forEach (opcode -> counts[opcode] ++);
+      .forEach (opcode -> counts[opcode]++);
 
     return stream (counts)
       .filter (d -> d != 0)
@@ -23,7 +23,7 @@ public class Metrics {
       .sum () / log ((double) base);
   }
 
-  public static long hash (Machine machine, ProgramState p) {
+  public static long hash (Machine machine, Program p) {
     Heap heap = machine.getHeap ();
     return p.getCell ().bytes ()
       .asLongStream ()

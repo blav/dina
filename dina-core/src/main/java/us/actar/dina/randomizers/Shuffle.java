@@ -1,7 +1,7 @@
 package us.actar.dina.randomizers;
 
 import us.actar.dina.Machine;
-import us.actar.dina.ProgramState;
+import us.actar.dina.Program;
 import us.actar.dina.Randomizer;
 
 public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
@@ -13,7 +13,7 @@ public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
   }
 
   @Override
-  public int randomizeValue (ProgramState state, int value) {
+  public int randomizeValue (Program state, int value) {
     Randomizer randomizer = getMachine ().getRandomizer ();
     int i = randomizer.nextInt () % getConfig ().getProbability ();
     if (i != 0) {

@@ -8,6 +8,12 @@ public class Opcode {
 
   private final String symbol;
 
+  Opcode (Instruction instruction, int opcode, String symbol) {
+    this.instruction = instruction;
+    this.opcode = opcode;
+    this.symbol = symbol;
+  }
+
   public Instruction getInstruction () {
     return instruction;
   }
@@ -18,11 +24,5 @@ public class Opcode {
 
   public String getSymbol () {
     return symbol;
-  }
-
-  Opcode (Instruction instruction, int opcode, String symbol) {
-    this.instruction = instruction;
-    this.opcode = opcode;
-    this.symbol = symbol;
   }
 }

@@ -1,8 +1,10 @@
 package us.actar.dina.is.is1;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import us.actar.dina.InstructionFactory;
 import us.actar.dina.InstructionSetConfig;
-import us.actar.dina.is.lib.*;
+import us.actar.dina.Program;
+import us.actar.dina.Registers;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,8 +47,12 @@ public class IS1Config extends InstructionSetConfig<IS1Config, IS1Randomizers> {
     new GotoForward (IS1Randomizers.GOTO, 3),
   };
 
+  @JsonIgnore
+  private final int registers;
+
   public IS1Config () {
-    super (IS1Randomizers.class, 4);
+    super (IS1Randomizers.class);
+    this.registers = 4;
   }
 
   @Override
@@ -55,7 +61,17 @@ public class IS1Config extends InstructionSetConfig<IS1Config, IS1Randomizers> {
   }
 
   @Override
-  protected InstructionFactory[] getInstructions () {
-    return INSTRUCTIONS;
+  protected Collection<InstructionFactory> getInstructions () {
+    return Arrays.asList (INSTRUCTIONS);
+  }
+
+  @Override
+  public Registers createRegisters (Program program) {
+    return new IS1Registers (program, getRegisters ());
+  }
+
+  @JsonIgnore
+  public int getRegisters () {
+    return registers;
   }
 }

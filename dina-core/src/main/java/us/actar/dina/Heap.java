@@ -10,7 +10,26 @@ import static us.actar.dina.Heap.State.*;
 public class Heap {
 
   public static final TypeLiteral<Factory<Heap>> FACTORY_TYPE =
-    new TypeLiteral<Factory<Heap>> () {};
+    new TypeLiteral<Factory<Heap>> () {
+    };
+
+  private int available;
+
+  private byte[] heap;
+
+  private Cell first;
+
+  private Cell last;
+
+  public Heap (Machine machine) {
+    this (machine.getConfig ().getMemory ());
+  }
+
+  public Heap (int memory) {
+    this.heap = new byte[memory];
+    this.first = this.last = new Cell ();
+    this.available = this.heap.length;
+  }
 
   public int size () {
     return heap.length;
@@ -18,7 +37,7 @@ public class Heap {
 
   public int get (int offset) {
     ensureValidOffset (offset);
-    return Byte.toUnsignedInt (heap [offset]);
+    return Byte.toUnsignedInt (heap[offset]);
   }
 
   public void set (int offset, int value) {
@@ -44,30 +63,9 @@ public class Heap {
       throw new IllegalStateException ();
   }
 
-  public void ensureValidOffset (int offset)  {
+  public void ensureValidOffset (int offset) {
     if (offset < 0 || offset >= heap.length)
       throw new IllegalStateException ();
-  }
-
-  public enum State {
-    free ("F"),
-    inuse ("I"),
-    disposed ("D"),;
-
-    private final String shortName;
-
-    State (String shortName) {
-      this.shortName = shortName;
-    }
-
-    public String getShortName () {
-      return shortName;
-    }
-  }
-
-  public enum Direction {
-    left,
-    right,
   }
 
   public Iterable<Cell> fromFirst () {
@@ -102,16 +100,6 @@ public class Heap {
     };
   }
 
-  public Heap (Machine machine) {
-    this (machine.getConfig ().getMemory ());
-  }
-
-  public Heap (int memory) {
-    this.heap = new byte[memory];
-    this.first = this.last = new Cell ();
-    this.available = this.heap.length;
-  }
-
   public Cell getFirst () {
     return first;
   }
@@ -120,7 +108,38 @@ public class Heap {
     return last;
   }
 
+  public enum State {
+    free ("F"),
+    inuse ("I"),
+    disposed ("D"),;
+
+    private final String shortName;
+
+    State (String shortName) {
+      this.shortName = shortName;
+    }
+
+    public String getShortName () {
+      return shortName;
+    }
+  }
+
+  public enum Direction {
+    left,
+    right,
+  }
+
   public class Cell {
+
+    private int offset;
+
+    private int size;
+
+    private Cell left;
+
+    private Cell right;
+
+    private State state;
 
     private Cell () {
       this.left = null;
@@ -263,24 +282,6 @@ public class Heap {
       return "[" + offset + "-" + state.getShortName () + "-" + (offset + size) + "[";
     }
 
-    private int offset;
-
-    private int size;
-
-    private Cell left;
-
-    private Cell right;
-
-    private State state;
-
   }
-
-  private int available;
-
-  private byte[] heap;
-
-  private Cell first;
-
-  private Cell last;
 
 }

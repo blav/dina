@@ -2,19 +2,19 @@ package us.actar.dina.randomizers;
 
 import us.actar.dina.Fault;
 import us.actar.dina.Machine;
-import us.actar.dina.ProgramState;
+import us.actar.dina.Program;
 
 public interface RegisterRandomizer<CONF extends RegisterRandomizerConfig> {
+
+  RegisterRandomizer<?> NOP = new Nop ();
+
+  int randomizeValue (Program state, int value) throws Fault;
 
   interface Factory<CONF extends RegisterRandomizerConfig> {
 
     RegisterRandomizer<CONF> create (Machine machine, CONF create);
 
   }
-
-  RegisterRandomizer<?> NOP = new Nop ();
-
-  int randomizeValue (ProgramState state, int value) throws Fault;
 
   interface Name {
 

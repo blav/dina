@@ -9,34 +9,46 @@ import us.actar.dina.randomizers.RegisterRandomizer;
 import us.actar.dina.randomizers.RegisterRandomizer.Name;
 import us.actar.dina.randomizers.RegisterRandomizerConfig;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static us.actar.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonTypeIdResolver (InstructionSetConfigTypeResolver.class)
 public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig<THISTYPE, NAME>, NAME extends Name> {
 
   public static final TypeLiteral<InstructionSetConfig<? extends InstructionSetConfig<?, ?>, ? extends Name>> TYPE =
-    new TypeLiteral<InstructionSetConfig<? extends InstructionSetConfig<?, ?>, ? extends Name>> () {};
+    new TypeLiteral<InstructionSetConfig<? extends InstructionSetConfig<?, ?>, ? extends Name>> () {
+    };
 
-  @JsonProperty("randomizers")
+  @JsonProperty ("randomizers")
   private final Map<String, RegisterRandomizerConfig> registerRandomizers;
 
   @JsonIgnore
   private final Class<NAME> registerRandomizerClass;
 
-  @JsonIgnore
-  private final int registers;
+  @JsonProperty("ip-randomizer")
+  public RegisterRandomizerConfig ipRandomizer;
 
-  protected InstructionSetConfig (Class<NAME> registerRandomizerClass, int registers) {
+  @JsonProperty ("bootstraps")
+  private List<Bootstrap> bootstraps;
+
+  protected InstructionSetConfig (Class<NAME> registerRandomizerClass) {
     this.registerRandomizerClass = registerRandomizerClass;
-    this.registers = registers;
     this.registerRandomizers = new HashMap<> ();
+    this.bootstraps = new ArrayList<> ();
+  }
+
+  public THISTYPE addBoostrapCode (String... code) {
+    this.bootstraps.add (new Bootstrap ().setCode (code));
+    return cast ();
+  }
+
+  public List<Bootstrap> getBootstraps () {
+    return bootstraps;
   }
 
   public THISTYPE addRandomizer (NAME name, RegisterRandomizerConfig randomizer) {
@@ -62,8 +74,8 @@ public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig
     return configs;
   }
 
-  public void registerInstructions (InstructionRegistry registry) {
-    stream (getInstructions ()).forEach (f -> f.register (registry));
+  public void registerInstructions (InstructionSet registry) {
+    getInstructions ().forEach (f -> f.register (registry));
   }
 
   public RegisterRandomizerConfig getIpRandomizer () {
@@ -75,21 +87,36 @@ public abstract class InstructionSetConfig<THISTYPE extends InstructionSetConfig
     return (THISTYPE) this;
   }
 
-  @JsonIgnore
-  public int getRegisters () {
-    return registers;
-  }
+  public abstract Registers createRegisters (Program program);
 
   @JsonIgnore
   public int getInstructionsCount () {
-    return getInstructions ().length;
+    return getInstructions ().size ();
   }
-
-  public RegisterRandomizerConfig ipRandomizer;
 
   protected abstract Collection<NAME> getNames ();
 
   @JsonIgnore
-  protected abstract InstructionFactory [] getInstructions ();
+  protected abstract Collection<InstructionFactory> getInstructions ();
+
+  public static class Bootstrap {
+
+    @JsonProperty ("code")
+    private final List<String> code;
+
+    public Bootstrap () {
+      this.code = new ArrayList<> ();
+    }
+
+    public List<String> getCode () {
+      return code;
+    }
+
+    public Bootstrap setCode (String... code) {
+      this.code.clear ();
+      this.code.addAll (Arrays.asList (code));
+      return this;
+    }
+  }
 
 }

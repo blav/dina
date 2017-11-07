@@ -7,6 +7,7 @@ import us.actar.commons.ModuleSupplier;
 import us.actar.dina.InstructionSetConfig;
 
 public class IS1Module implements ModuleSupplier {
+
   @Override
   public Module get () {
     return new AbstractModule () {

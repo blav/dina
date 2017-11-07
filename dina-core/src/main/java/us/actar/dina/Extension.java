@@ -6,6 +6,22 @@ import java.util.List;
 
 public interface Extension {
 
+  default Filter<Reclaim> getReclaimFilter () {
+    return null;
+  }
+
+  default Filter<Execute> getExecuteFilter () {
+    return null;
+  }
+
+  default Filter<Kill> getKillFilter () {
+    return null;
+  }
+
+  default Filter<Launch> getLaunchFilter () {
+    return null;
+  }
+
   interface Action {
 
     Machine getMachine ();
@@ -22,17 +38,17 @@ public interface Extension {
 
     Opcode getOpcode ();
 
-    ProgramState getState ();
+    Program getState ();
 
   }
 
   interface Launch extends Action {
 
-    ProgramState getProgram ();
-
-    void setLaunchedId (int id);
+    Program getProgram ();
 
     int getLaunchedId ();
+
+    void setLaunchedId (int id);
 
   }
 
@@ -40,21 +56,5 @@ public interface Extension {
 
     List<Program> getReclaimList ();
 
-  }
-
-  default Filter<Reclaim> getReclaimFilter () {
-    return null;
-  }
-
-  default Filter<Execute> getExecuteFilter () {
-    return null;
-  }
-
-  default Filter<Kill> getKillFilter () {
-    return null;
-  }
-
-  default Filter<Launch> getLaunchFilter () {
-    return null;
   }
 }

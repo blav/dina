@@ -7,6 +7,7 @@ import us.actar.dina.console.StatsExtension;
 import static us.actar.dina.console.Context.registerExtension;
 
 public class CommandsModule extends AbstractModule {
+
   @Override
   protected void configure () {
     CommandsRegistry.newBuilder (binder ())

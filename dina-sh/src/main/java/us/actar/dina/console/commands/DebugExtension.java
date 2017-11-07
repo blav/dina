@@ -2,7 +2,9 @@ package us.actar.dina.console.commands;
 
 import us.actar.commons.Chain;
 import us.actar.commons.Chain.Filter;
-import us.actar.dina.*;
+import us.actar.dina.Extension;
+import us.actar.dina.Machine;
+import us.actar.dina.Program;
 import us.actar.dina.console.Context;
 
 import java.io.IOException;
@@ -21,37 +23,13 @@ public class DebugExtension implements Context.Extension, Extension {
 
   private Chain.Handle handle;
 
+  public DebugExtension () {
+    this.handles = new HashMap<> ();
+  }
+
   @Override
   public void init (Context context) {
     this.handle = context.getLoop ().getMachine ().install (DebugExtension.this);
-  }
-
-  private class ProgramDebugger implements AutoCloseable {
-
-    private PrintWriter output;
-
-    private ProgramDebugger (Machine machine, int pid) {
-      try {
-        this.output = new PrintWriter (newBufferedWriter (getSubPath ("debug").resolve ("" + pid)));
-        this.output.println ("Code");
-        Dump.dump (machine, machine.getProgram (pid), this.output);
-        this.output.println ();
-        this.output.println ("Execution log");
-        this.output.flush ();
-      } catch (IOException e) {
-        throw new UncheckedIOException (e);
-      }
-    }
-
-    @Override
-    public void close () {
-      this.output.close ();
-      this.output = null;
-    }
-  }
-
-  public DebugExtension () {
-    this.handles = new HashMap<> ();
   }
 
   public boolean install (Machine machine, int pid) {
@@ -85,7 +63,7 @@ public class DebugExtension implements Context.Extension, Extension {
   public Filter<Kill> getKillFilter () {
     return (chain, kill) -> {
       int pid = kill.getProgram ();
-      ProgramState state = kill.getMachine ().getProgram (pid);
+      Program state = kill.getMachine ().getProgram (pid);
       ofNullable (handles.get (state.getId ()))
         .ifPresent (d -> {
           d.output.printf ("%8d %8d %8d - program was killed.\n",
@@ -101,7 +79,7 @@ public class DebugExtension implements Context.Extension, Extension {
   @Override
   public Filter<Execute> getExecuteFilter () {
     return (chain, execute) -> {
-      ProgramState state = execute.getState ();
+      Program state = execute.getState ();
       chain.next (execute);
       ofNullable (this.handles.get (state.getId ()))
         .ifPresent (d -> {
@@ -109,5 +87,29 @@ public class DebugExtension implements Context.Extension, Extension {
             state.getCycles (), state.getFaults (), execute.getOpcode ().getSymbol ());
         });
     };
+  }
+
+  private class ProgramDebugger implements AutoCloseable {
+
+    private PrintWriter output;
+
+    private ProgramDebugger (Machine machine, int pid) {
+      try {
+        this.output = new PrintWriter (newBufferedWriter (getSubPath ("debug").resolve ("" + pid)));
+        this.output.println ("Code");
+        Dump.dump (machine, machine.getProgram (pid), this.output);
+        this.output.println ();
+        this.output.println ("Execution log");
+        this.output.flush ();
+      } catch (IOException e) {
+        throw new UncheckedIOException (e);
+      }
+    }
+
+    @Override
+    public void close () {
+      this.output.close ();
+      this.output = null;
+    }
   }
 }

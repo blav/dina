@@ -4,23 +4,9 @@ import us.actar.dina.Machine;
 
 public class ShuffleConfig extends RegisterRandomizerConfig {
 
-  public enum Range {
-    BYTE {
-      @Override
-      public int range (Machine machine) {
-        return machine.getConfig ().getInstructionSet ().getInstructionsCount ();
-      }
-    },
-    ADDRESS {
-      @Override
-      public int range (Machine machine) {
-        return machine.getHeap ().getTotal ();
-      }
-    };
+  private int probability;
 
-    public abstract int range (Machine machine);
-
-  }
+  private Range range;
 
   public ShuffleConfig () {
     this.range = Range.ADDRESS;
@@ -45,8 +31,22 @@ public class ShuffleConfig extends RegisterRandomizerConfig {
     return this;
   }
 
-  private int probability;
+  public enum Range {
+    BYTE {
+      @Override
+      public int range (Machine machine) {
+        return machine.getConfig ().getInstructionSet ().getInstructionsCount ();
+      }
+    },
+    ADDRESS {
+      @Override
+      public int range (Machine machine) {
+        return machine.getHeap ().getTotal ();
+      }
+    };
 
-  private Range range;
+    public abstract int range (Machine machine);
+
+  }
 
 }

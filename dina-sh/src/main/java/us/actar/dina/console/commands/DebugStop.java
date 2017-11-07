@@ -6,6 +6,7 @@ import us.actar.dina.console.Context;
 import java.util.Scanner;
 
 public class DebugStop implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     return context.executePaused (c -> {

@@ -14,14 +14,7 @@ import us.actar.dina.console.CommandsRegistry;
 import us.actar.dina.console.Context;
 import us.actar.dina.console.MainLoop;
 import us.actar.dina.console.commands.Error;
-import us.actar.dina.is.is1.IS1Config;
-import us.actar.dina.is.is1.IS1Randomizers;
-import us.actar.dina.randomizers.FadeConfig;
-import us.actar.dina.randomizers.ShiftConfig;
-import us.actar.dina.randomizers.ShuffleConfig;
 
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -34,82 +27,11 @@ import static us.actar.dina.Utils.getBasePath;
 public class Main {
 
   public static void main (String... args) throws Exception {
-    Config config = new Config ()
-      .setInstructionSet (new IS1Config ()
-          .setIpRandomizer (
-            new FadeConfig ().setDistance (5).setProbability (10))
-          .addRandomizer (IS1Randomizers.WRITE,
-            new ShuffleConfig ().setProbability (100).setRange (ShuffleConfig.Range.BYTE))
-          .addRandomizer (IS1Randomizers.INCREMENT,
-            new ShiftConfig ().setProbability (200).setValue (2))
-          .addRandomizer (IS1Randomizers.DECREMENT,
-            new ShiftConfig ().setProbability (200).setValue (2))
-          .addRandomizer (IS1Randomizers.GOTO,
-            new FadeConfig ().setProbability (10).setDistance (10))
-          .addRandomizer (IS1Randomizers.FIND,
-            new FadeConfig ().setProbability (10).setDistance (10))
-        //.addRandomizer (IS1Randomizers.SUBSTRACT, new ShiftConfig ()
-        //  .setProbability (200))
-        //.addRandomizer (IS1Randomizers.SUBSTRACT, new NopConfig ())
-      )
-      .setRandomizer (new Config.Randomizer ()
-        .setName (Config.DEFAULT)
-        .setSeed (0))
-      .setReclaimer (new Config.Reclaimer ()
-        .setName ("immediate")
-        .setThresholdHigh (.75)
-        .setThresholdLow (.7)
-      )
-      .setMemory (100000)
-      .addBoostrapCode (
-        "label0",
-        "find_forward_label0_into_r0",
-        "find_backward_label0_into_r1",
-        "substract_r1_from_r0_into_r2",
-        "increment_r0",
-        "increment_r2",
-        "alloc_r2_bytes_into_r1",
-        "add_r2_to_r1_into_r1",
-        "label1",
+    ObjectMapper mapper = new ObjectMapper (new YAMLFactory ())
+      .setDefaultPropertyInclusion (JsonInclude.Include.NON_NULL);
 
-        "increment_r0",
-        "decrement_r0",
-        "increment_r0",
-        "decrement_r0",
-
-        "decrement_r0",
-        "decrement_r1",
-        "decrement_r2",
-        "read_at_r0_into_r3",
-        "write_r3_at_r1",
-        "if_r2_is_not_null",
-        "go_backward_to_label1",
-        "fork",
-        "go_backward_to_label0",
-        "label0"
-      )
-      .addBoostrapCode (
-        "label0",
-        "find_forward_label0_into_r0",
-        "find_backward_label0_into_r1",
-        "substract_r1_from_r0_into_r2",
-        "increment_r0",
-        "increment_r2",
-        "alloc_r2_bytes_into_r1",
-        "add_r2_to_r1_into_r1",
-        "go_backward_to_label1",
-        "fork",
-        "go_backward_to_label0",
-        "label0"
-      )
-      ;
-
-    ObjectMapper mapper = new ObjectMapper (new YAMLFactory ()).setDefaultPropertyInclusion (JsonInclude.Include.NON_NULL);
-    StringWriter out = new StringWriter ();
-    mapper.writer ().writeValue (out, config);
-    System.out.println (out.toString ());
-
-    config = mapper.reader ().forType (Config.class).readValue (new StringReader (out.toString ()));
+    Config config = mapper.reader ().forType (Config.class)
+      .readValue (Main.class.getClassLoader ().getResourceAsStream ("sample-config.yaml"));
 
     Machine vm = new Machine (config);
     MainLoop loop = new MainLoop (vm);

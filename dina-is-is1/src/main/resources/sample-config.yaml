@@ -1,0 +1,63 @@
+---
+randomizer:
+  name: "default"
+  seed: 0
+memory: 100000
+reclaimer:
+  name: "immediate"
+  thresholdHigh: 0.75
+  thresholdLow: 0.7
+instruction-set: !<is2>
+  ip-randomizer: !<fade>
+    probability: 10
+    distance: 5
+  randomizers:
+    INCREMENT: !<shift>
+      probability: 200
+      value: 2
+    GOTO: !<fade>
+      probability: 10
+      distance: 10
+    FIND: !<fade>
+      probability: 10
+      distance: 10
+    DECREMENT: !<shift>
+      probability: 200
+      value: 2
+    WRITE: !<shuffle>
+      probability: 100
+      range: "BYTE"
+  bootstraps:
+  - code:
+    - "label0"
+    - "find_forward_label0_into_r0"
+    - "find_backward_label0_into_r1"
+    - "substract_r1_from_r0_into_r2"
+    - "increment_r0"
+    - "increment_r2"
+    - "alloc_r2_bytes_into_r1"
+    - "add_r2_to_r1_into_r1"
+    - "label1"
+    - "decrement_r0"
+    - "decrement_r1"
+    - "decrement_r2"
+    - "read_at_r0_into_r3"
+    - "write_r3_at_r1"
+    - "if_r2_is_not_null"
+    - "go_backward_to_label1"
+    - "fork"
+    - "go_backward_to_label0"
+    - "label0"
+  - code:
+    - "label0"
+    - "find_forward_label0_into_r0"
+    - "find_backward_label0_into_r1"
+    - "substract_r1_from_r0_into_r2"
+    - "increment_r0"
+    - "increment_r2"
+    - "alloc_r2_bytes_into_r1"
+    - "add_r2_to_r1_into_r1"
+    - "go_backward_to_label1"
+    - "fork"
+    - "go_backward_to_label0"
+    - "label0"

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class DatabaseClear implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);

@@ -10,16 +10,6 @@ import static us.actar.dina.console.MainLoop.State.stopped;
 
 public class MainLoop implements Runnable {
 
-  public enum State {
-    stopped,
-    running,
-    paused,
-  }
-
-  private State actualState;
-
-  private State requestedState;
-
   private final ReentrantLock lock;
 
   private final Condition requested;
@@ -27,6 +17,10 @@ public class MainLoop implements Runnable {
   private final Condition actualized;
 
   private final Machine machine;
+
+  private State actualState;
+
+  private State requestedState;
 
   public MainLoop (Machine machine) {
     this.machine = machine;
@@ -87,5 +81,11 @@ public class MainLoop implements Runnable {
         lock.unlock ();
       }
     }
+  }
+
+  public enum State {
+    stopped,
+    running,
+    paused,
   }
 }

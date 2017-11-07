@@ -3,7 +3,7 @@ package us.actar.dina.randomizers;
 import us.actar.dina.Fault;
 import us.actar.dina.Heap;
 import us.actar.dina.Machine;
-import us.actar.dina.ProgramState;
+import us.actar.dina.Program;
 
 public class Fade extends AbstractRegisterRandomizer<FadeConfig> {
 
@@ -14,7 +14,7 @@ public class Fade extends AbstractRegisterRandomizer<FadeConfig> {
   }
 
   @Override
-  public int randomizeValue (ProgramState state, int value) throws Fault {
+  public int randomizeValue (Program state, int value) throws Fault {
     Heap.Cell cell = state.getCell ();
     int radius = cell.getSize () / 2;
     int center = cell.getOffset () + radius;

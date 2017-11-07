@@ -7,6 +7,7 @@ import us.actar.dina.console.MainLoop;
 import java.util.Scanner;
 
 public class Pause implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     MainLoop machine = context.getLoop ();

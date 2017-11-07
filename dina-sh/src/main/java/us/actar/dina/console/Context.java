@@ -14,6 +14,13 @@ import static us.actar.commons.Injector.getMap;
 
 public class Context implements AutoCloseable {
 
+  private static final TypeLiteral<Class<? extends Extension>>
+    KEY = new TypeLiteral<Class<? extends Extension>> () {
+  };
+
+  private static final TypeLiteral<Extension>
+    VALUE = TypeLiteral.get (Extension.class);
+
   private final MainLoop loop;
 
   private final PrintStream out;
@@ -24,26 +31,6 @@ public class Context implements AutoCloseable {
 
   private final Map<Class<? extends Extension>, Extension> extensions;
 
-  private static final TypeLiteral<Class<? extends Extension>>
-    KEY = new TypeLiteral<Class<? extends Extension>> () {};
-
-  private static final TypeLiteral<Extension>
-    VALUE = TypeLiteral.get (Extension.class);
-
-  public static void registerExtension (Binder binder, Class<? extends Extension> extension) {
-    MapBinder<Class<? extends Extension>, Extension> mb = newMapBinder (binder, KEY, VALUE);
-    mb.addBinding (extension).to (extension);
-  }
-
-  public interface Extension extends AutoCloseable {
-    default void init (Context context) {
-    }
-
-    @Override
-    default void close () {
-    }
-  }
-
   public Context (LineReader reader, MainLoop loop) {
     this.reader = reader;
     this.loop = loop;
@@ -51,6 +38,11 @@ public class Context implements AutoCloseable {
     this.err = System.err;
     this.extensions = getMap (KEY, VALUE);
     this.extensions.values ().forEach (e -> e.init (this));
+  }
+
+  public static void registerExtension (Binder binder, Class<? extends Extension> extension) {
+    MapBinder<Class<? extends Extension>, Extension> mb = newMapBinder (binder, KEY, VALUE);
+    mb.addBinding (extension).to (extension);
   }
 
   public boolean executePaused (Function<Context, Boolean> action) {
@@ -87,5 +79,15 @@ public class Context implements AutoCloseable {
   @Override
   public void close () throws Exception {
     this.extensions.values ().forEach (Extension::close);
+  }
+
+  public interface Extension extends AutoCloseable {
+
+    default void init (Context context) {
+    }
+
+    @Override
+    default void close () {
+    }
   }
 }

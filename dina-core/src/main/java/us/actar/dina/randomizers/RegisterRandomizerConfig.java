@@ -13,11 +13,12 @@ import static java.util.Optional.ofNullable;
 import static us.actar.dina.randomizers.NopConfig.INSTANCE;
 
 @JsonIgnoreProperties (ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY)
 @JsonTypeIdResolver (RegisterRandomizerConfigTypeResolver.class)
 public class RegisterRandomizerConfig {
 
-  public static final TypeLiteral<RegisterRandomizerConfig> TYPE = new TypeLiteral<RegisterRandomizerConfig> () {};
+  public static final TypeLiteral<RegisterRandomizerConfig> TYPE = new TypeLiteral<RegisterRandomizerConfig> () {
+  };
 
   public static RegisterRandomizer<? extends RegisterRandomizerConfig> createRandomizer (Machine machine, RegisterRandomizerConfig config) {
     Class<? extends RegisterRandomizerConfig>

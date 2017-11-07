@@ -6,6 +6,7 @@ import us.actar.dina.console.Context;
 import java.util.Scanner;
 
 public class DatabaseClose implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     ConnectionPoolExtension extension = context.getExtension (ConnectionPoolExtension.class);

@@ -2,6 +2,10 @@ package us.actar.dina.randomizers;
 
 public class FadeConfig extends RegisterRandomizerConfig {
 
+  private int probability;
+
+  private int distance;
+
   public FadeConfig () {
     this.distance = 200;
     this.probability = 100;
@@ -24,9 +28,5 @@ public class FadeConfig extends RegisterRandomizerConfig {
     this.probability = probability;
     return this;
   }
-
-  private int probability;
-
-  private int distance;
 
 }

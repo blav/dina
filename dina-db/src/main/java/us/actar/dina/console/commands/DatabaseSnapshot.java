@@ -2,7 +2,6 @@ package us.actar.dina.console.commands;
 
 import us.actar.dina.Machine;
 import us.actar.dina.Program;
-import us.actar.dina.ProgramState;
 import us.actar.dina.console.Command;
 import us.actar.dina.console.Context;
 
@@ -69,7 +68,7 @@ public class DatabaseSnapshot implements Command {
                 "(snapshot, id, ip, forks, faults, position, size, cycles, entropy, hash, code) VALUES (");
 
               insert.append (b.stream ()
-                .map (i -> (ProgramState) programs.get (i))
+                .map (i -> (Program) programs.get (i))
                 .map (p -> {
                   String code = rawDump (machine, p, new StringWriter ()).toString ();
                   String hash = format ("%016x", hash (machine, p));

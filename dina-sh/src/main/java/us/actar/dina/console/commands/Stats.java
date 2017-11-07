@@ -10,6 +10,7 @@ import java.util.Scanner;
 import static java.util.Comparator.comparingInt;
 
 public class Stats implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     return context.executePaused (c -> {

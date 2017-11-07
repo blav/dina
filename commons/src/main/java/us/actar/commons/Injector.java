@@ -13,14 +13,14 @@ import static com.google.inject.name.Names.named;
 
 public class Injector {
 
+  private static final Injector singleton = new Injector ();
+
   private final com.google.inject.Injector injector = Guice.createInjector (new AbstractModule () {
     @Override
     protected void configure () {
       ServiceLoader.load (ModuleSupplier.class).forEach (ms -> install (ms.get ()));
     }
   });
-
-  private static final Injector singleton = new Injector ();
 
   public static com.google.inject.Injector getInjector () {
     return singleton.injector;

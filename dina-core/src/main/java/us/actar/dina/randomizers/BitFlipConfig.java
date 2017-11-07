@@ -2,6 +2,8 @@ package us.actar.dina.randomizers;
 
 public class BitFlipConfig extends RegisterRandomizerConfig {
 
+  private int probability;
+
   public BitFlipConfig () {
     this.probability = 100;
   }
@@ -14,7 +16,5 @@ public class BitFlipConfig extends RegisterRandomizerConfig {
     this.probability = probability;
     return this;
   }
-
-  private int probability;
 
 }

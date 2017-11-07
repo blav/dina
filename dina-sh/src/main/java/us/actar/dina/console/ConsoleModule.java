@@ -6,6 +6,7 @@ import us.actar.commons.ModuleSupplier;
 import us.actar.dina.console.commands.CommandsModule;
 
 public class ConsoleModule implements ModuleSupplier {
+
   @Override
   public Module get () {
     return new AbstractModule () {

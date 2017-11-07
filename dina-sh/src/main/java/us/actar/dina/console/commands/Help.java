@@ -6,6 +6,7 @@ import us.actar.dina.console.Context;
 import java.util.Scanner;
 
 public class Help implements Command {
+
   @Override
   public boolean run (Context context, Scanner arguments) {
     context.getOut ().println ("Prints this message.");
