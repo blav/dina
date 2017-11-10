@@ -20,11 +20,11 @@ public class Write extends Base {
       (machine, state) -> {
         Heap heap = machine.getHeap ();
         IS2Registers registers = getRegisters (state);
+        int vaddress = registers.pop (machine.getRandomizer (randomizer));
         int v = registers.pop (RegisterRandomizer.NOP);
         if (v >> 8 > 0)
           throw new Fault ();
 
-        int vaddress = registers.pop (machine.getRandomizer (randomizer));
         boolean ok = state.getCell ().contains (vaddress);
         if (ok == false && state.getChild () != null)
           ok = state.getChild ().contains (vaddress);

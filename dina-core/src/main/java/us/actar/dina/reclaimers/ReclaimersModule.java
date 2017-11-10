@@ -22,5 +22,8 @@ public class ReclaimersModule extends AbstractModule {
       .annotatedWith (named ("immediate"))
       .toInstance (ImmediatePenalty::new);
 
+    bind (HeapReclaimer.FACTORY_TYPE)
+      .annotatedWith (named ("fault-aging"))
+      .toInstance (FaultAgingPenalty::new);
   }
 }

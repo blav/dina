@@ -7,7 +7,7 @@ reclaimer:
   name: "immediate"
   thresholdHigh: 0.75
   thresholdLow: 0.7
-instruction-set: !<is2>
+instruction-set: !<is1>
   ip-randomizer: !<fade>
     probability: 10
     distance: 5

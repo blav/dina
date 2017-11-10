@@ -20,7 +20,7 @@ public class Fork extends Base {
       "fork",
       (machine, state) -> {
         Program child = new Program (
-          ofNullable (state.getChild ()).orElseThrow (Fault::new),
+          state, ofNullable (state.getChild ()).orElseThrow (Fault::new),
           machine.getConfig ().getInstructionSet ());
 
         child.setInstructionPointer (child.getCell ().getOffset (), NOP);

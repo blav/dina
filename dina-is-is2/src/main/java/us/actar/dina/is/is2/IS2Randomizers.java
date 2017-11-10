@@ -14,14 +14,14 @@ public enum IS2Randomizers implements RegisterRandomizer.Name {
   DUP,
   SWAP,
   RESET,
-  POP,
+  DROP,
   IF,
   INCREMENT,
   LABEL,
   READ,
   SUBSTRACT,
   WRITE,
-  SET,
-  GET,
+  POP,
+  PUSH,
 
 }

@@ -1,7 +1,7 @@
 package us.actar.dina;
 
 import us.actar.commons.Chain;
-import us.actar.commons.Chain.Handle;
+import us.actar.commons.Handle;
 import us.actar.commons.Chain.State;
 import us.actar.dina.Extension.Execute;
 import us.actar.dina.Extension.Kill;
@@ -17,6 +17,7 @@ import static java.util.Optional.ofNullable;
 import static us.actar.commons.Injector.getInstance;
 import static us.actar.dina.Heap.Direction.left;
 import static us.actar.dina.Heap.Direction.right;
+import static us.actar.dina.randomizers.RegisterRandomizer.NOP;
 import static us.actar.dina.randomizers.RegisterRandomizerConfig.createRandomizer;
 
 public final class Machine {
@@ -25,9 +26,9 @@ public final class Machine {
 
   private final Randomizer randomizer;
 
-  private final InstructionSet registry;
+  private final InstructionSet instructionSet;
 
-  private final Map<Integer, Program> programStates;
+  private final Map<Integer, Program> programs;
 
   private final Config config;
 
@@ -41,16 +42,18 @@ public final class Machine {
 
   private int programIdGenerator;
 
+  private int cycles;
+
   private RegisterRandomizer<?> ipRandomizer;
 
   public Machine (Config config) {
     this.config = config;
     this.heap = getInstance (Heap.FACTORY_TYPE).create (this);
     this.randomizer = getInstance (config.getRandomizer ().getName (), Randomizer.FACTORY_TYPE).create (this);
-    this.programStates = new HashMap<> ();
+    this.programs = new HashMap<> ();
     this.ipRandomizer = createRandomizer (this, this.config.getInstructionSet ().getIpRandomizer ());
-    this.registry = new InstructionSet ();
-    this.config.getInstructionSet ().registerInstructions (this.registry);
+    this.instructionSet = new InstructionSet ();
+    this.config.getInstructionSet ().registerInstructions (this.instructionSet);
 
     this.execution = new Chain<> (this::internalExecute);
     this.kill = new Chain<> (this::internalKill);
@@ -91,12 +94,12 @@ public final class Machine {
 
         Heap heap = getHeap ();
         for (int i = 0; i < boostrap.size (); i++) {
-          int opcode = this.registry.getOpcode (boostrap.get (i));
+          int opcode = this.instructionSet.getOpcode (boostrap.get (i));
           heap.set (cell.getOffset () + i, opcode);
         }
 
-        Program state = new Program (cell, this.config.getInstructionSet ());
-        state.setInstructionPointer (cell.getOffset (), RegisterRandomizer.NOP);
+        Program state = new Program (null, cell, this.config.getInstructionSet ());
+        state.setInstructionPointer (cell.getOffset (), NOP);
         launch (state);
       }
 
@@ -107,7 +110,7 @@ public final class Machine {
   }
 
   private void execute (Program state) {
-    Opcode opcode = this.registry.getInstruction (this.heap.get (state.getInstructionPointer ()));
+    Opcode opcode = this.instructionSet.getInstruction (this.heap.get (state.getInstructionPointer ()));
     state.incrementCycles ();
     this.execution.next (new Execute () {
       @Override
@@ -181,24 +184,29 @@ public final class Machine {
   }
 
   public Collection<Program> getPrograms () {
-    return new ArrayList<> (this.programStates.values ());
+    return new ArrayList<> (this.programs.values ());
   }
 
   public Program getProgram (int pid) {
-    return this.programStates.get (pid);
+    return this.programs.get (pid);
   }
 
   public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
     return this.randomizer.getRegisterRandomizer (name);
   }
 
-  public InstructionSet getRegistry () {
-    return registry;
+  public int getCycles () {
+    return cycles;
+  }
+
+  public InstructionSet getInstructionSet () {
+    return instructionSet;
   }
 
   public void update () {
+    this.cycles ++;
     // copy state list since it can be altered while in the loop
-    new ArrayList<> (this.programStates.values ()).forEach (this::execute);
+    new ArrayList<> (this.programs.values ()).forEach (this::execute);
 
     ArrayList<Program> programs = new ArrayList<> ();
     reclaim.next (new Reclaim () {
@@ -239,7 +247,7 @@ public final class Machine {
       throw new NullPointerException ();
 
     int pid = this.programIdGenerator++;
-    this.programStates.put (pid, state);
+    this.programs.put (pid, state);
     state.setId (pid);
     launch.setLaunchedId (pid);
     chain.next (launch);
@@ -247,7 +255,7 @@ public final class Machine {
 
   private void internalKill (State<Kill> chain, Kill kill) {
     int pid = kill.getProgram ();
-    Program p = ofNullable (this.programStates.remove (pid))
+    Program p = ofNullable (this.programs.remove (pid))
       .orElseThrow (() -> new IllegalStateException ("no such pid " + pid));
 
     try {

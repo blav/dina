@@ -19,7 +19,11 @@ public class Jump extends Base {
   public void register (InstructionSet registry) {
     registry.register (
       "jump",
-      (machine, state) ->
-        state.setInstructionPointer (getRegisters (state).pop (NOP), machine.getRandomizer (randomizer)));
+      (machine, state) -> {
+        IS2Registers registers = getRegisters (state);
+        int ip = state.getInstructionPointer ();
+        state.setInstructionPointer (registers.pop (NOP), machine.getRandomizer (randomizer));
+        registers.push (ip, NOP);
+      });
   }
 }

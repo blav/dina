@@ -2,6 +2,10 @@ package us.actar.dina;
 
 import us.actar.dina.randomizers.RegisterRandomizer;
 
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
+
 public class Program {
 
   private final Heap.Cell cell;
@@ -20,9 +24,12 @@ public class Program {
 
   private int faults;
 
-  public Program (Heap.Cell cell, InstructionSetConfig registers) {
+  private final int parentId;
+
+  public Program (Program parent, Heap.Cell cell, InstructionSetConfig registers) {
     this.cell = cell;
     this.registers = registers.createRegisters (this);
+    this.parentId = ofNullable (parent).map (Program::getId).orElse (0);
   }
 
   public Heap.Cell getCell () {
@@ -58,6 +65,10 @@ public class Program {
 
   public int getId () {
     return id;
+  }
+
+  public int getParentId () {
+    return parentId;
   }
 
   public void setId (int id) {

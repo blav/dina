@@ -1,10 +1,8 @@
 package us.actar.dina;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.TreeSet;
+import java.util.*;
 
+import static java.util.Collections.unmodifiableCollection;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.range;
@@ -30,6 +28,10 @@ public class InstructionSet {
 
   public int getOpcode (String symbol) {
     return getInstruction (symbol).getOpcode ();
+  }
+
+  public Collection<Opcode> getOpcodes () {
+    return unmodifiableCollection (opcodes.values ());
   }
 
   public void register (String symbol, Instruction instruction) {
@@ -60,6 +62,7 @@ public class InstructionSet {
 
   private Instruction newUnknownIntruction (@SuppressWarnings ("unused") int opcode) {
     return (machine, state) -> {
+      throw new Fault ();
     };
   }
 }

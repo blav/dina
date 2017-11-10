@@ -3,7 +3,6 @@ package us.actar.dina.is.is2;
 import us.actar.dina.Fault;
 import us.actar.dina.InstructionSet;
 import us.actar.dina.Program;
-import us.actar.dina.randomizers.RegisterRandomizer;
 
 import static java.util.Optional.ofNullable;
 import static us.actar.dina.is.is2.IS2Randomizers.FORK;
@@ -21,7 +20,7 @@ public class Fork extends Base {
       "fork",
       (machine, state) -> {
         Program child = new Program (
-          ofNullable (state.getChild ()).orElseThrow (Fault::new),
+          state, ofNullable (state.getChild ()).orElseThrow (Fault::new),
           machine.getConfig ().getInstructionSet ());
 
         child.setInstructionPointer (child.getCell ().getOffset (), NOP);

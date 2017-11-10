@@ -14,6 +14,11 @@ public class Opcode {
     this.symbol = symbol;
   }
 
+  @Override
+  public String toString () {
+    return symbol;
+  }
+
   public Instruction getInstruction () {
     return instruction;
   }

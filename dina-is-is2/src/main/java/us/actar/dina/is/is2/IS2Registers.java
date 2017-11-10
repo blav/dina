@@ -55,15 +55,17 @@ public class IS2Registers extends Registers {
     if (position >= stack.length)
       throw new Fault ();
 
-    stack [position ++] = ensureValidValue (randomizer.randomizeValue (program, value));
+    stack[position++] = ensureValidValue (randomizer.randomizeValue (program, value));
   }
 
   public int pop (RegisterRandomizer<?> randomizer) throws Fault {
-    if (position <= 0) {
+    if (position <= 0)
       throw new Fault ();
-    } else {
-      return ensureValidValue (randomizer.randomizeValue (program, stack[--position]));
-    }
+
+    if (position < stack.length)
+      stack[position] = 0;
+
+    return ensureValidValue (randomizer.randomizeValue (program, stack[--position]));
   }
 
   public int peek (RegisterRandomizer<?> randomizer) throws Fault {

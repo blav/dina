@@ -43,12 +43,6 @@ public class Chain<IN> {
     this.state = new State<> (unmodifiableList (new ArrayList<> (this.filters)));
   }
 
-  public interface Handle {
-
-    void uninstall ();
-
-  }
-
   @FunctionalInterface
   public interface Filter<IN> {
 

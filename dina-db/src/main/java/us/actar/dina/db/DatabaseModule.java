@@ -3,12 +3,11 @@ package us.actar.dina.db;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import us.actar.commons.ModuleSupplier;
-import us.actar.dina.console.CommandsRegistry;
-import us.actar.dina.console.commands.*;
+import us.actar.dina.sh.CommandsRegistry;
+import us.actar.dina.sh.commands.*;
+import us.actar.dina.sh.extensions.DatabaseExtension;
 
 import java.util.Properties;
-
-import static us.actar.dina.console.Context.registerExtension;
 
 public class DatabaseModule implements ModuleSupplier {
 
@@ -17,15 +16,18 @@ public class DatabaseModule implements ModuleSupplier {
     return new AbstractModule () {
       @Override
       protected void configure () {
-        CommandsRegistry.newBuilder (binder ())
+        CommandsRegistry.newCommandBuilder (binder ())
           .registerCommand ("db-open", DatabaseOpen.class)
           .registerCommand ("db-close", DatabaseClose.class)
           .registerCommand ("db-snapshot", DatabaseSnapshot.class)
           .registerCommand ("db-select", DatabaseSelect.class)
           .registerCommand ("db-clear", DatabaseClear.class)
+          .registerCommand ("db-option", DatabaseOption.class)
           .done ();
 
-        registerExtension (binder (), ConnectionPoolExtension.class);
+        CommandsRegistry.newExtensionsBuilder (binder ())
+          .registerExtension (DatabaseExtension.class)
+          .done ();
 
         // disable c3p0 logs
         Properties p = new Properties (System.getProperties ());

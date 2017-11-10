@@ -15,11 +15,12 @@ public class Shuffle extends AbstractRegisterRandomizer<ShuffleConfig> {
   @Override
   public int randomizeValue (Program state, int value) {
     Randomizer randomizer = getMachine ().getRandomizer ();
-    int i = randomizer.nextInt () % getConfig ().getProbability ();
+    int v = randomizer.nextInt ();
+    int i = v % getConfig ().getProbability ();
     if (i != 0) {
       return value;
     } else {
-      return randomizer.nextInt () % getConfig ().getRange ().range (getMachine ());
+      return v % getConfig ().getRange ().range (getMachine ());
     }
   }
 }
