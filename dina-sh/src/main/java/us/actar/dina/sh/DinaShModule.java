@@ -5,6 +5,7 @@ import com.google.inject.Module;
 import us.actar.commons.ModuleSupplier;
 import us.actar.dina.sh.alias.AliasModule;
 import us.actar.dina.sh.commands.*;
+import us.actar.dina.sh.coupling.CouplingModule;
 import us.actar.dina.sh.debug.DebugModule;
 import us.actar.dina.sh.profiler.ProfilerModule;
 
@@ -18,6 +19,7 @@ public class DinaShModule implements ModuleSupplier {
         install (new AliasModule ());
         install (new DebugModule ());
         install (new ProfilerModule ());
+        install (new CouplingModule ());
         CommandsRegistry.newCommandBuilder (binder ())
           .registerCommand ("help", Help.class)
           .registerCommand ("pause", Pause.class)

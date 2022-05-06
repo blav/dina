@@ -7,19 +7,27 @@
 
 package us.actar.commons;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BinaryOperator;
 import java.util.function.IntSupplier;
 
 import static java.lang.System.nanoTime;
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-
+@SuppressWarnings ("unused")
 public class Profiler {
 
   public class FakeLapse extends Lapse {
+
     @Override
     public void close () {
     }
@@ -63,17 +71,17 @@ public class Profiler {
     start (timerId);
     return this.lapse;
   }
-  
+
   public Profiler (Metric metric) {
-    this.registered = Collections.synchronizedMap (new WeakHashMap<Thread, ThreadProfiler> ());
+    this.registered = Collections.synchronizedMap (new WeakHashMap<> ());
     this.metric = metric != null ? metric : new Nanos ();
     this.globalTimers = new HashMap<> ();
     this.globalTimerIds = new HashMap<> ();
     this.lapse = new Lapse ();
     this.fakeLapse = new FakeLapse ();
-    this.profilers = ThreadLocal.withInitial (() -> new ThreadProfiler ());
+    this.profilers = ThreadLocal.withInitial (ThreadProfiler::new);
   }
-  
+
   public int addTimer (String name) {
     return addTimer (name, () -> this.generator++);
   }
@@ -105,34 +113,38 @@ public class Profiler {
     stop ();
     start (timerId);
   }
-  
+
   public void start (int timerId) {
     this.profilers.get ().start (timerId, metric.measure ());
   }
-  
+
   public void stop () {
     this.profilers.get ().stop (metric.measure ());
   }
-  
+
   public void lap () {
     Metric.Measure m = metric.measure ();
     for (ThreadProfiler p : new HashSet<> (registered.values ()))
       p.lap (m);
   }
-  
+
   public Map<String, Long> getElapsedTimes (TimeUnit unit) {
-    Map<String,Long> m = new HashMap<> ();
+    Map<String, Long> m = new HashMap<> ();
     for (GlobalTimer t : globalTimers.values ())
       m.put (t.name, unit.convert (t.elapsed.get (), metric.getUnit ()));
-    
+
     return m;
   }
 
   public static class Summary {
+
     public Summary (long count, long elapsed) {
       this.count = count;
       this.elapsed = elapsed;
     }
+
+    public static BinaryOperator<Summary> SUM =
+      (a, b) -> new Summary (a.count + b.count, a.elapsed + b.elapsed);
 
     public long getCount () {
       return count;
@@ -170,7 +182,7 @@ public class Profiler {
   }
 
   private class ThreadProfiler {
-    
+
     public ThreadProfiler () {
       this.thread = Thread.currentThread ();
       Profiler.this.registered.put (thread, this);
@@ -178,22 +190,22 @@ public class Profiler {
       for (GlobalTimer e : globalTimers.values ())
         this.timers.put (e.id, new ThreadTimer (e));
     }
-    
+
     private void start (int timerId, Metric.Measure measure) {
       ThreadTimer t = getThreadTimer (timerId);
       long currentValue = measure.getValue (thread);
-      StackFrame f = null;
+      StackFrame f;
       if (pool != null) {
         f = pool;
         pool = f.next;
       } else {
         f = new StackFrame ();
       }
-      
+
       f.init (head, t).start (currentValue);
       if (head != null)
         head.stop (currentValue, 0);
-      
+
       head = f;
     }
 
@@ -211,123 +223,120 @@ public class Profiler {
       long currentValue = measure.getValue (thread);
       if (head == null)
         throw new RuntimeException ("profiler is not started");
-      
+
       StackFrame n = head.next;
       if (n != null)
         n.start (currentValue);
-      
+
       head.stop (currentValue, 1);
       head.init (pool, null);
       pool = head;
       head = n;
     }
-    
+
     private ThreadTimer getThreadTimer (int timerId) {
       ThreadTimer t = timers.get (timerId);
       if (t != null)
         return t;
-      
+
       synchronized (this) {
         t = timers.get (timerId);
         if (t != null)
           return t;
-        
+
         GlobalTimer gt = globalTimers.get (timerId);
         if (gt == null)
           gt = defaultTimer;
 
         if (gt == null)
           throw new RuntimeException ("no such timer " + timerId);
-        
-        Map<Integer,ThreadTimer> tm = new HashMap<> (timers);
-        tm.put (timerId, t = new ThreadTimer (gt));
+
         timers.put (timerId, t);
         return t;
       }
     }
 
     private StackFrame head;
-    
+
     private StackFrame pool;
-    
+
     private final Map<Integer, ThreadTimer> timers;
 
-    private Thread thread;
-    
+    private final Thread thread;
+
   }
-  
-  private class ThreadTimer {
+
+  private static class ThreadTimer {
 
     public ThreadTimer (GlobalTimer globalTimer) {
       this.globalTimer = globalTimer;
       this.startedTime = new AtomicLong (0);
       this.startCount = 0;
     }
-    
+
     private void start (long currentValue) {
       if (++ startCount == 1)
         startedTime.set (currentValue);
     }
-    
+
     private void stop (long currentValue, long count) {
       if (-- startCount == 0) {
         globalTimer.elapsed.addAndGet (currentValue - startedTime.getAndSet (0));
         globalTimer.count.addAndGet (count);
       }
     }
-    
+
     private void lap (long currentValue) {
-      for (int i = 0; i < 50; i ++) {
+      for (int i = 0; i < 50; i++) {
         long st = startedTime.get ();
         if (st == 0)
           return;
-        
+
         if (startedTime.compareAndSet (st, currentValue)) {
           globalTimer.elapsed.addAndGet (currentValue - st);
           return;
         }
-        
+
         try {
           Thread.sleep (0, 5);
         } catch (Exception x) {
+          //
         }
       }
     }
-    
+
     private final GlobalTimer globalTimer;
-    
+
     private int startCount;
-    
+
     private final AtomicLong startedTime;
-    
+
   }
-  
-  private class StackFrame {
-    
+
+  private static class StackFrame {
+
     public StackFrame init (StackFrame next, ThreadTimer timer) {
       this.next = next;
       this.timer = timer;
       return this;
     }
-    
-    public StackFrame start (long currentValue) {
+
+    public void start (long currentValue) {
       this.timer.start (currentValue);
-      return this;
     }
-    
-    public StackFrame stop (long currentValue, long count) {
+
+    public void stop (long currentValue, long count) {
       this.timer.stop (currentValue, count);
-      return this;
     }
-    
+
     private ThreadTimer timer;
-    
+
     private StackFrame next;
-    
+
   }
-  
-  private class GlobalTimer {
-    
+
+  private static class GlobalTimer {
+
     public GlobalTimer (String name, IntSupplier generator) {
       this.name = name;
       this.elapsed = new AtomicLong ();
@@ -336,7 +345,7 @@ public class Profiler {
     }
 
     private final String name;
-    
+
     private final Integer id;
 
     private final AtomicLong elapsed;
@@ -344,34 +353,34 @@ public class Profiler {
     private final AtomicLong count;
 
   }
-  
+
   private String strip (String name, int level) {
     if (level <= 0)
       return name;
-    
-    String [] split = name.split (".");
+
+    String[] split = name.split ("\\.");
     if (split.length < level)
       return name;
-    
-    StringBuilder b = new StringBuilder (split [0]);
-    for (int i = 1; i < level; i ++)
-      b.append ('.').append (split [i]);
-    
+
+    StringBuilder b = new StringBuilder (split[0]);
+    for (int i = 1; i < level; i++)
+      b.append ('.').append (split[i]);
+
     return b.toString ();
   }
 
   private final Map<Thread, ThreadProfiler> registered;
-  
+
   private int generator;
-  
+
   private final Metric metric;
 
   private final ThreadLocal<ThreadProfiler> profilers;
-  
+
   private Map<Integer, GlobalTimer> globalTimers;
 
   private GlobalTimer defaultTimer;
-  
+
   private Map<String, Integer> globalTimerIds;
 
   private final Lapse lapse;
@@ -379,6 +388,7 @@ public class Profiler {
   private final Lapse fakeLapse;
 
   public class Lapse implements AutoCloseable {
+
     @Override
     public void close () {
       stop ();

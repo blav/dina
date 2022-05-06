@@ -28,44 +28,32 @@ instruction-set: !<is2>
     WRITE: !<shuffle>
       probability: 100
       range: "BYTE"
+  cost-unknown: 15
+  cost-default: 5
+  gain-per-cycle: 10
+  initial-energy: 200
+  costs:
+    FAULT: 15
+    DECREMENT: 4
+    ALLOC: 58
+    FIND: 4
+    FORK: 14
+    PUSH: 3
+    POP: 7
+    DUP: 7
+    DROP: 3
+    JUMP: 3
+    LABEL: 6
+    IF: 2
+    WRITE: 2
+    SUBSTRACT: 9
+    ADD: 9
+    RESET: 3
+    INCREMENT: 6
+    READ: 6
+    NOP: 1
+    SWAP: 7
   bootstraps:
-  - code:
-    - "label0"
-    - "find_forward_label0"
-    - "increment"
-    - "dup"
-    - "pop_S"
-    - "find_backward_label0"
-    - "substract"
-    - "dup"
-    - "pop_V"
-    - "dup"
-    - "alloc"
-    - "add"
-    - "pop_D"
-    - "push_0"
-    - "label1"
-    - "drop"
-    - "push_S"
-    - "decrement"
-    - "pop_S"
-    - "push_D"
-    - "decrement"
-    - "pop_D"
-    - "push_V"
-    - "decrement"
-    - "pop_V"
-    - "push_S"
-    - "read"
-    - "push_D"
-    - "write"
-    - "find_backward_label1"
-    - "push_V"
-    - "if_not_null"
-    - "jump"
-    - "fork"
-    - "reset"
-    - "label0"
   - code:
     - "label0"
     - "find_forward_label0"
@@ -86,11 +74,30 @@ instruction-set: !<is2>
     - "decrement_S"
     - "decrement_D"
     - "decrement_V"
-    - "read_at_S_write_at_D"
-    - "find_backward_label1"
+    - "push_S"
+    - "read"
+    - "push_D"
+    - "write"
     - "push_V"
     - "if_not_null"
-    - "jump"
+    - "go_backward_to_label1"
     - "fork"
     - "reset"
+    - "label0"
+  - code:
+    - "label0"
+    - "find_forward_label0"
+    - "increment"
+    - "dup"
+    - "pop_S"
+    - "find_backward_label0"
+    - "substract"
+    - "dup"
+    - "pop_V"
+    - "dup"
+    - "alloc"
+    - "add"
+    - "pop_D"
+    - "push_0"
+    - "go_backward_to_label1"
     - "label0"

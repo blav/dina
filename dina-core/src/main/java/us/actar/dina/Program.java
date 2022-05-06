@@ -24,12 +24,17 @@ public class Program {
 
   private int faults;
 
+  private int energy;
+
+  private int skipped;
+
   private final int parentId;
 
   public Program (Program parent, Heap.Cell cell, InstructionSetConfig registers) {
     this.cell = cell;
     this.registers = registers.createRegisters (this);
     this.parentId = ofNullable (parent).map (Program::getId).orElse (0);
+    this.energy = registers.getInitialEnergy ();
   }
 
   public Heap.Cell getCell () {
@@ -101,5 +106,21 @@ public class Program {
 
   public void incrementFaults () {
     this.faults++;
+  }
+
+  public int getSkipped () {
+    return skipped;
+  }
+
+  public void incrementSkipped () {
+    this.skipped ++;
+  }
+
+  public int getEnergy () {
+    return energy;
+  }
+
+  public void updateEnergy (int amount) {
+    this.energy += amount;
   }
 }

@@ -9,6 +9,8 @@ import static java.util.stream.IntStream.range;
 
 public class InstructionSet {
 
+  private static final InstructionGroup NAME_UNKNOWN = () -> "unknown";
+
   private final TreeSet<Integer> availableOpcodes;
 
   private final Map<Integer, Opcode> opcodes;
@@ -34,16 +36,20 @@ public class InstructionSet {
     return unmodifiableCollection (opcodes.values ());
   }
 
-  public void register (String symbol, Instruction instruction) {
+  public void register (Instruction instruction) {
+    String symbol = instruction.getSymbol ();
     Integer opcode = this.availableOpcodes.pollFirst ();
     if (opcode == null)
       throw new IllegalStateException ("registry full");
 
-    Instruction decorator = (machine, state) -> {
-      try {
-        instruction.process (machine, state);
-      } finally {
-        state.incrementIP ();
+    Instruction decorator = new Instruction (instruction.getSymbol (), instruction.getGroup ()) {
+      @Override
+      public void process (Machine machine, Program state) throws Fault {
+        try {
+          instruction.process (machine, state);
+        } finally {
+          state.incrementIP ();
+        }
       }
     };
 
@@ -61,8 +67,11 @@ public class InstructionSet {
   }
 
   private Instruction newUnknownIntruction (@SuppressWarnings ("unused") int opcode) {
-    return (machine, state) -> {
-      throw new Fault ();
+    return new Instruction ("unknown" + opcode, NAME_UNKNOWN) {
+      @Override
+      public void process (Machine machine, Program state) throws Fault {
+        throw new Fault ();
+      }
     };
   }
 }

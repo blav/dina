@@ -1,13 +1,12 @@
 package us.actar.dina.is.is1;
 
-import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.*;
 
 public class IfNull extends Base {
 
   private final int value;
 
-  public IfNull (RegisterRandomizer.Name randomizer, int value) {
+  public IfNull (InstructionGroup randomizer, int value) {
     super (randomizer);
     this.value = value;
   }
@@ -15,10 +14,12 @@ public class IfNull extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      String.format ("if_r%d_is_null", value),
-      (machine, state) -> {
-        if (getRegisters (state).get (value, machine.getRandomizer (randomizer)) != 0)
-          state.incrementIP ();
+      new Instruction (String.format ("if_r%d_is_null", value), group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          if (IfNull.this.getRegisters (state).get (value, machine.getRandomizer (group)) != 0)
+            state.incrementIP ();
+        }
       });
   }
 }

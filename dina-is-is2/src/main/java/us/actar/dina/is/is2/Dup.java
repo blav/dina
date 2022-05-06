@@ -1,9 +1,12 @@
 package us.actar.dina.is.is2;
 
+import us.actar.dina.Fault;
+import us.actar.dina.Instruction;
 import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.Machine;
+import us.actar.dina.Program;
 
-import static us.actar.dina.is.is2.IS2Randomizers.DUP;
+import static us.actar.dina.is.is2.IS2InstructionGroup.DUP;
 import static us.actar.dina.randomizers.RegisterRandomizer.NOP;
 
 public class Dup extends Base {
@@ -16,10 +19,12 @@ public class Dup extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      "dup",
-      (machine, state) -> {
-        IS2Registers registers = getRegisters (state);
-        registers.push (registers.peek (NOP), machine.getRandomizer (randomizer));
+      new Instruction ("dup", group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          IS2Registers registers = Dup.this.getRegisters (state);
+          registers.push (registers.peek (NOP), machine.getRandomizer (group));
+        }
       });
   }
 }

@@ -1,16 +1,14 @@
 package us.actar.dina.sh;
 
-import org.jline.reader.Completer;
-import org.jline.reader.LineReader;
-import us.actar.commons.Handle;
-
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.google.inject.multibindings.MapBinder.newMapBinder;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import us.actar.commons.Disposable;
+
 import static us.actar.commons.Injector.getMap;
 
 public class Context implements AutoCloseable {
@@ -64,18 +62,19 @@ public class Context implements AutoCloseable {
     return out;
   }
 
+  @SuppressWarnings ("unchecked")
   public <A extends Extension> A getExtension (Class<A> extensionClass) {
     return (A) extensions.get (extensionClass);
   }
 
   @Override
-  public void close () throws Exception {
+  public void close () {
     this.extensions.values ().forEach (Extension::close);
   }
 
-  public Handle addCompleter (Completer completer) {
+  public Disposable addCompleter (Completer completer) {
     this.completers.add (completer);
-    return () -> this.completers.remove (completers);
+    return () -> this.completers.remove (completer);
   }
 
   public interface Extension extends AutoCloseable {

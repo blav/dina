@@ -13,23 +13,23 @@ public class Chain<IN> {
 
   private State<IN> state;
 
+  @SafeVarargs
   public Chain (Filter<IN>... filters) {
     this.filters = new ArrayList<> ();
     this.state = new State<> (new ArrayList<> ());
     stream (filters).forEach (this::install);
   }
 
-  public synchronized Handle install (Filter<IN> filter) {
+  public synchronized Disposable install (Filter<IN> filter) {
     if (filter == null)
       throw new NullPointerException ();
 
     // wrap to prevent Handler.uninstall() failure when same filter is inserted multiple times
-    Filter<IN> f = (chain, payload) -> filter.next (chain, payload);
-    this.filters.add (max (this.filters.size () - 1, 0), f);
+    this.filters.add (max (this.filters.size () - 1, 0), filter);
     this.updateState ();
     return () -> {
       synchronized (Chain.this) {
-        this.filters.remove (f);
+        this.filters.remove (filter);
         this.updateState ();
       }
     };

@@ -32,6 +32,8 @@ public class DatabaseOpen implements Command {
           "  position INTEGER, " +
           "  size INTEGER, " +
           "  cycles INTEGER, " +
+          "  skipped INTEGER, " +
+          "  energy INTEGER, " +
           "  entropy DOUBLE, " +
           "  code CLOB, " +
           "  hash VARCHAR(16), " +

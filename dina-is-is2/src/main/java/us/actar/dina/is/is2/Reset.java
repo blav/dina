@@ -1,10 +1,12 @@
 package us.actar.dina.is.is2;
 
+import us.actar.dina.Fault;
+import us.actar.dina.Instruction;
 import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.Machine;
+import us.actar.dina.Program;
 
-import static us.actar.dina.is.is2.IS2Randomizers.RESET;
-import static us.actar.dina.randomizers.RegisterRandomizer.NOP;
+import static us.actar.dina.is.is2.IS2InstructionGroup.RESET;
 
 public class Reset extends Base {
 
@@ -16,8 +18,11 @@ public class Reset extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      "reset",
-      (machine, state) ->
-        state.setInstructionPointer (state.getCell ().getOffset (), machine.getRandomizer (randomizer)));
+      new Instruction ("reset", group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          state.setInstructionPointer (state.getCell ().getOffset (), machine.getRandomizer (group));
+        }
+      });
   }
 }

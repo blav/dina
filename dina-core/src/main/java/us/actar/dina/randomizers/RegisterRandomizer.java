@@ -16,12 +16,6 @@ public interface RegisterRandomizer<CONF extends RegisterRandomizerConfig> {
 
   }
 
-  interface Name {
-
-    String name ();
-
-  }
-
   interface RegistryBuilder {
 
     <CONF extends RegisterRandomizerConfig> RegistryBuilder registerRandomizer (String typeId, Class<CONF> configClass, RegisterRandomizer.Factory<CONF> factory);

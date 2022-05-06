@@ -19,6 +19,10 @@ public class Opcode {
     return symbol;
   }
 
+  public InstructionGroup getGroup () {
+    return instruction.getGroup ();
+  }
+
   public Instruction getInstruction () {
     return instruction;
   }

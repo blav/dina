@@ -1,13 +1,12 @@
 package us.actar.dina.is.is1;
 
-import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.*;
 
 public class Label extends Base {
 
   private final int label;
 
-  public Label (RegisterRandomizer.Name randomizer, int label) {
+  public Label (InstructionGroup randomizer, int label) {
     super (randomizer);
     this.label = label;
   }
@@ -23,8 +22,10 @@ public class Label extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      getSymbol (label),
-      (machine, state) -> {
+      new Instruction (getSymbol (label), group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+        }
       }
     );
   }

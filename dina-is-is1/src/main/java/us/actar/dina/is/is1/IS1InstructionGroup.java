@@ -1,8 +1,8 @@
 package us.actar.dina.is.is1;
 
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.InstructionGroup;
 
-public enum IS1Randomizers implements RegisterRandomizer.Name {
+public enum IS1InstructionGroup implements InstructionGroup {
 
   NOP,
   ADD,

@@ -42,10 +42,12 @@ public class Injector {
     return getInjector ().getInstance (Key.get (type, named (name)));
   }
 
+  @SuppressWarnings ("unchecked")
   public static <K, V> Map<K, V> getMap (Class<K> key, Class<V> value) {
     return (Map<K, V>) getInjector ().getInstance (Key.get (Types.mapOf (key, value)));
   }
 
+  @SuppressWarnings ("unchecked")
   public static <K, V> Map<K, V> getMap (TypeLiteral<K> key, TypeLiteral<V> value) {
     return (Map<K, V>) getInjector ().getInstance (Key.get (Types.mapOf (key.getType (), value.getType ())));
   }

@@ -1,9 +1,12 @@
 package us.actar.dina.is.is2;
 
+import us.actar.dina.Fault;
+import us.actar.dina.Instruction;
 import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.Machine;
+import us.actar.dina.Program;
 
-import static us.actar.dina.is.is2.IS2Randomizers.IF;
+import static us.actar.dina.is.is2.IS2InstructionGroup.IF;
 
 public class IfNull extends Base {
 
@@ -14,10 +17,12 @@ public class IfNull extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      "if_null",
-      (machine, state) -> {
-        if (getRegisters (state).pop (machine.getRandomizer (randomizer)) != 0)
-          state.incrementIP ();
+      new Instruction ("if_null", group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          if (IfNull.this.getRegisters (state).pop (machine.getRandomizer (group)) != 0)
+            state.incrementIP ();
+        }
       });
   }
 }

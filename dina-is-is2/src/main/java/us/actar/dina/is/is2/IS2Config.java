@@ -10,7 +10,7 @@ import java.util.*;
 import static java.util.Arrays.stream;
 import static java.util.stream.IntStream.range;
 
-public class IS2Config extends InstructionSetConfig<IS2Config, IS2Randomizers> {
+public class IS2Config extends InstructionSetConfig<IS2Config, IS2InstructionGroup> {
 
   private static final List<InstructionFactory> INSTRUCTIONS;
   static {
@@ -37,6 +37,8 @@ public class IS2Config extends InstructionSetConfig<IS2Config, IS2Randomizers> {
       INSTRUCTIONS.add (new Label (i));
       INSTRUCTIONS.add (new FindForward (i));
       INSTRUCTIONS.add (new FindBackward (i));
+      INSTRUCTIONS.add (new GotoBackward (i));
+      INSTRUCTIONS.add (new GotoForward (i));
     });
 
     stream (Register.values ()).map (Push::new).forEach (INSTRUCTIONS::add);
@@ -50,13 +52,13 @@ public class IS2Config extends InstructionSetConfig<IS2Config, IS2Randomizers> {
   private final int stackSize;
 
   public IS2Config () {
-    super (IS2Randomizers.class);
+    super (IS2InstructionGroup.class);
     this.stackSize = 4;
   }
 
   @Override
-  protected Collection<IS2Randomizers> getNames () {
-    return Arrays.asList (IS2Randomizers.values ());
+  protected Collection<IS2InstructionGroup> getGroups () {
+    return Arrays.asList (IS2InstructionGroup.values ());
   }
 
   @Override

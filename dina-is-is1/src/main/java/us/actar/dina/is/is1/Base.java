@@ -1,15 +1,15 @@
 package us.actar.dina.is.is1;
 
 import us.actar.dina.InstructionFactory;
+import us.actar.dina.InstructionGroup;
 import us.actar.dina.Program;
-import us.actar.dina.randomizers.RegisterRandomizer;
 
 public abstract class Base implements InstructionFactory {
 
-  protected final RegisterRandomizer.Name randomizer;
+  protected final InstructionGroup group;
 
-  public Base (RegisterRandomizer.Name randomizer) {
-    this.randomizer = randomizer;
+  public Base (InstructionGroup group) {
+    this.group = group;
   }
 
   protected IS1Registers getRegisters (Program program) {

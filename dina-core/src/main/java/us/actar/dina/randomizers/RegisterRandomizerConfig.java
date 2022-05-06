@@ -13,7 +13,7 @@ import static java.util.Optional.ofNullable;
 import static us.actar.dina.randomizers.NopConfig.INSTANCE;
 
 @JsonIgnoreProperties (ignoreUnknown = true)
-@JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo (use = JsonTypeInfo.Id.CUSTOM)
 @JsonTypeIdResolver (RegisterRandomizerConfigTypeResolver.class)
 public class RegisterRandomizerConfig {
 
@@ -27,6 +27,7 @@ public class RegisterRandomizerConfig {
     Map<Class<? extends RegisterRandomizerConfig>, Factory<?>>
       registry = RegisterRandomizerRegistry.getRandomizers ();
 
+    @SuppressWarnings ("unchecked")
     Factory<RegisterRandomizerConfig> f = (Factory<RegisterRandomizerConfig>) registry.get (configClass);
     return f.create (machine, config);
   }

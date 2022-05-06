@@ -1,17 +1,21 @@
 package us.actar.dina;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import us.actar.commons.Chain;
-import us.actar.commons.Handle;
 import us.actar.commons.Chain.State;
+import us.actar.commons.Disposable;
 import us.actar.dina.Extension.Execute;
 import us.actar.dina.Extension.Kill;
 import us.actar.dina.Extension.Launch;
 import us.actar.dina.Extension.Reclaim;
 import us.actar.dina.InstructionSetConfig.Bootstrap;
 import us.actar.dina.randomizers.RegisterRandomizer;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Optional.ofNullable;
 import static us.actar.commons.Injector.getInstance;
@@ -44,7 +48,7 @@ public final class Machine {
 
   private int cycles;
 
-  private RegisterRandomizer<?> ipRandomizer;
+  private final RegisterRandomizer<?> ipRandomizer;
 
   public Machine (Config config) {
     this.config = config;
@@ -66,13 +70,13 @@ public final class Machine {
     this.boostrap ();
   }
 
-  public Handle install (Extension extension) {
-    List<Handle> handles = new ArrayList<> ();
-    ofNullable (extension.getReclaimFilter ()).map (this.reclaim::install).ifPresent (handles::add);
-    ofNullable (extension.getExecuteFilter ()).map (this.execution::install).ifPresent (handles::add);
-    ofNullable (extension.getKillFilter ()).map (this.kill::install).ifPresent (handles::add);
-    ofNullable (extension.getLaunchFilter ()).map (this.launch::install).ifPresent (handles::add);
-    return () -> handles.forEach (Handle::uninstall);
+  public Disposable install (Extension extension) {
+    List<Disposable> disposables = new ArrayList<> ();
+    ofNullable (extension.getReclaimFilter ()).map (this.reclaim::install).ifPresent (disposables::add);
+    ofNullable (extension.getExecuteFilter ()).map (this.execution::install).ifPresent (disposables::add);
+    ofNullable (extension.getKillFilter ()).map (this.kill::install).ifPresent (disposables::add);
+    ofNullable (extension.getLaunchFilter ()).map (this.launch::install).ifPresent (disposables::add);
+    return () -> disposables.forEach (Disposable::dispose);
   }
 
   private void boostrap () {
@@ -109,9 +113,18 @@ public final class Machine {
     }
   }
 
-  private void execute (Program state) {
-    Opcode opcode = this.instructionSet.getInstruction (this.heap.get (state.getInstructionPointer ()));
-    state.incrementCycles ();
+  private void execute (Program program) {
+    InstructionSetConfig<?, ?> config = this.config.getInstructionSet ();
+    program.updateEnergy (config.getGainPerCycle ());
+    Opcode opcode = this.instructionSet.getInstruction (this.heap.get (program.getInstructionPointer ()));
+    program.incrementCycles ();
+    int cost = config.getCost (opcode.getGroup ().name ());
+    if (cost > program.getEnergy ()) {
+      program.incrementSkipped ();
+      return;
+    }
+
+    program.updateEnergy (- cost);
     this.execution.next (new Execute () {
       @Override
       public Opcode getOpcode () {
@@ -120,7 +133,7 @@ public final class Machine {
 
       @Override
       public Program getState () {
-        return state;
+        return program;
       }
 
       @Override
@@ -138,7 +151,7 @@ public final class Machine {
     return randomizer;
   }
 
-  public int launch (Program state) {
+  public void launch (Program state) {
     AtomicInteger result = new AtomicInteger ();
     this.launch.next (new Launch () {
       @Override
@@ -162,7 +175,7 @@ public final class Machine {
       }
     });
 
-    return result.get ();
+    result.get ();
   }
 
   public Config getConfig () {
@@ -191,8 +204,8 @@ public final class Machine {
     return this.programs.get (pid);
   }
 
-  public RegisterRandomizer<?> getRandomizer (RegisterRandomizer.Name name) {
-    return this.randomizer.getRegisterRandomizer (name);
+  public RegisterRandomizer<?> getRandomizer (InstructionGroup instructionGroup) {
+    return this.randomizer.getRegisterRandomizer (instructionGroup);
   }
 
   public int getCycles () {

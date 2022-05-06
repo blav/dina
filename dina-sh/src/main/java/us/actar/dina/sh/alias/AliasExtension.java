@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.jline.reader.Candidate;
-import us.actar.commons.Handle;
+import us.actar.commons.Disposable;
 import us.actar.dina.Utils;
 import us.actar.dina.sh.Context;
 
@@ -16,6 +16,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.nio.file.Files.exists;
+import static java.nio.file.Files.newBufferedReader;
+import static java.nio.file.Files.newBufferedWriter;
 import static java.util.stream.Collectors.toList;
 
 public class AliasExtension implements Context.Extension {
@@ -25,7 +28,7 @@ public class AliasExtension implements Context.Extension {
   private static final ObjectMapper MAPPER = new ObjectMapper (new YAMLFactory ())
     .setDefaultPropertyInclusion (JsonInclude.Include.NON_NULL);
 
-  private Handle completer;
+  private Disposable completer;
 
   public Aliases getAliases () {
     return aliases;
@@ -47,22 +50,22 @@ public class AliasExtension implements Context.Extension {
   @Override
   public void init (Context context) {
     Path aliases = getAliasesPath ();
-    if (Files.exists (aliases) == false) {
+    if (exists (aliases) == false) {
       this.aliases = new Aliases ();
       return;
     }
 
-    try (Reader reader = Files.newBufferedReader (aliases)) {
+    try (Reader reader = newBufferedReader (aliases)) {
       this.aliases = MAPPER.reader ().forType (Aliases.class).readValue (reader);
     } catch (IOException e) {
-      context.getErr ().printf ("Could ot load .aliases file: %s\n", e.getMessage ());
+      context.getErr ().printf ("Could not load aliases file: %s\n", e.getMessage ());
       this.aliases = new Aliases ();
     }
 
     this.completer = context.addCompleter ((reader, line, candidates) -> {
-      candidates.addAll (
-        getAliases ().aliases.keySet ().stream ()
-          .map (Candidate::new).collect (toList ()));
+      if (line.words ().size () <= 1)
+        candidates.addAll (
+          getAliases ().aliases.keySet ().stream ().map (Candidate::new).collect (toList ()));
     });
   }
 
@@ -87,13 +90,13 @@ public class AliasExtension implements Context.Extension {
   @Override
   public void close () {
     if (this.completer != null) {
-      this.completer.uninstall ();
+      this.completer.dispose ();
       this.completer = null;
     }
   }
 
   private void save () {
-    try (Writer writer = Files.newBufferedWriter (getAliasesPath ())) {
+    try (Writer writer = newBufferedWriter (getAliasesPath ())) {
       MAPPER.writer ().writeValue (writer, this.aliases);
     } catch (IOException e) {
       e.printStackTrace ();

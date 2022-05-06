@@ -41,7 +41,7 @@ public class Main {
     ExecutorService executor = Executors.newFixedThreadPool (1);
     executor.execute (loop);
 
-    List<Completer> completers = synchronizedList (new ArrayList<Completer> ());
+    List<Completer> completers = synchronizedList (new ArrayList<> ());
     completers.add (new TreeCompleter (CommandsRegistry.getCommands ().entrySet ().stream ()
       .map (e -> e.getValue ().getCompletions (e.getKey ())).collect (toList ())));
 
@@ -73,7 +73,7 @@ public class Main {
 
           run = ofNullable (CommandsRegistry.getCommand (cmd)).orElse (new Error (cmd)).run (context, line);
         } catch (NoSuchElementException e) {
-          continue;
+          //
         }
       }
     }

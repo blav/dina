@@ -1,7 +1,6 @@
 package us.actar.dina.is.is1;
 
-import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.*;
 
 import static us.actar.dina.randomizers.RegisterRandomizer.NOP;
 
@@ -9,7 +8,7 @@ public class Decrement extends Base {
 
   private final int register;
 
-  public Decrement (RegisterRandomizer.Name randomizer, int register) {
+  public Decrement (InstructionGroup randomizer, int register) {
     super (randomizer);
     this.register = register;
   }
@@ -17,9 +16,11 @@ public class Decrement extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      String.format ("decrement_r%d", register),
-      (machine, state) -> {
-        getRegisters (state).set (register, getRegisters (state).get (register, NOP) - 1, machine.getRandomizer (randomizer));
+      new Instruction (String.format ("decrement_r%d", register), group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          Decrement.this.getRegisters (state).set (register, Decrement.this.getRegisters (state).get (register, NOP) - 1, machine.getRandomizer (group));
+        }
       }
     );
   }

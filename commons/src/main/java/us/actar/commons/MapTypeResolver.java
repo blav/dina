@@ -1,5 +1,9 @@
 package us.actar.commons;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -8,11 +12,6 @@ import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.util.Types;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import static com.google.inject.multibindings.MapBinder.newMapBinder;
 import static java.util.Optional.ofNullable;
@@ -54,6 +53,7 @@ public class MapTypeResolver<TYPE> implements TypeIdResolver {
     };
   }
 
+  @SuppressWarnings ("unchecked")
   private static <TYPE> TypeLiteral<Class<? extends TYPE>> newClassTypeLiteral (TypeLiteral<TYPE> type) {
     return (TypeLiteral<Class<? extends TYPE>>) TypeLiteral.get (
       Types.newParameterizedType (Class.class, Types.subtypeOf (type.getType ())));
@@ -88,7 +88,7 @@ public class MapTypeResolver<TYPE> implements TypeIdResolver {
   }
 
   @Override
-  public JavaType typeFromId (DatabindContext context, String typeId) throws IOException {
+  public JavaType typeFromId (DatabindContext context, String typeId) {
     return ofNullable (mapping.get (typeId))
       .map (typeClass -> context.getTypeFactory ().constructSpecializedType (baseType, typeClass))
       .orElseThrow (() -> new IllegalStateException ("no mapping for typeId id  " + typeId));

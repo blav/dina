@@ -1,14 +1,15 @@
 package us.actar.dina.is.is2;
 
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.InstructionGroup;
 
-public enum IS2Randomizers implements RegisterRandomizer.Name {
+public enum IS2InstructionGroup implements InstructionGroup {
 
   NOP,
   ADD,
   ALLOC,
   DECREMENT,
   FIND,
+  FAULT,
   FORK,
   JUMP,
   DUP,
@@ -23,5 +24,6 @@ public enum IS2Randomizers implements RegisterRandomizer.Name {
   WRITE,
   POP,
   PUSH,
+  GOTO,
 
 }

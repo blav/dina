@@ -2,14 +2,13 @@ package us.actar.dina.is.is2;
 
 import us.actar.dina.InstructionFactory;
 import us.actar.dina.Program;
-import us.actar.dina.randomizers.RegisterRandomizer;
 
 public abstract class Base implements InstructionFactory {
 
-  protected final IS2Randomizers randomizer;
+  protected final IS2InstructionGroup group;
 
-  public Base (IS2Randomizers randomizer) {
-    this.randomizer = randomizer;
+  public Base (IS2InstructionGroup group) {
+    this.group = group;
   }
 
   protected IS2Registers getRegisters (Program program) {

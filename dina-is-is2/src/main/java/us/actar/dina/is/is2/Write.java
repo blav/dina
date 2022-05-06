@@ -1,11 +1,10 @@
 package us.actar.dina.is.is2;
 
+import us.actar.dina.*;
 import us.actar.dina.Fault;
-import us.actar.dina.Heap;
-import us.actar.dina.InstructionSet;
 import us.actar.dina.randomizers.RegisterRandomizer;
 
-import static us.actar.dina.is.is2.IS2Randomizers.*;
+import static us.actar.dina.is.is2.IS2InstructionGroup.*;
 
 public class Write extends Base {
 
@@ -16,25 +15,27 @@ public class Write extends Base {
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      "write",
-      (machine, state) -> {
-        Heap heap = machine.getHeap ();
-        IS2Registers registers = getRegisters (state);
-        int vaddress = registers.pop (machine.getRandomizer (randomizer));
-        int v = registers.pop (RegisterRandomizer.NOP);
-        if (v >> 8 > 0)
+      new Instruction ("write", group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          Heap heap = machine.getHeap ();
+          IS2Registers registers = Write.this.getRegisters (state);
+          int vaddress = registers.pop (machine.getRandomizer (group));
+          int v = registers.pop (RegisterRandomizer.NOP);
+          if (v >> 8 > 0)
+            throw new Fault ();
+
+          boolean ok = state.getCell ().contains (vaddress);
+          if (ok == false && state.getChild () != null)
+            ok = state.getChild ().contains (vaddress);
+
+          if (ok) {
+            heap.set (vaddress, (byte) v);
+            return;
+          }
+
           throw new Fault ();
-
-        boolean ok = state.getCell ().contains (vaddress);
-        if (ok == false && state.getChild () != null)
-          ok = state.getChild ().contains (vaddress);
-
-        if (ok) {
-          heap.set (vaddress, (byte) v);
-          return;
         }
-
-        throw new Fault ();
       });
   }
 }

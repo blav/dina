@@ -12,7 +12,7 @@ public interface Randomizer {
 
   int nextInt ();
 
-  default RegisterRandomizer<?> getRegisterRandomizer (RegisterRandomizer.Name name) {
+  default RegisterRandomizer<?> getRegisterRandomizer (InstructionGroup instructionGroup) {
     return RegisterRandomizer.NOP;
   }
 

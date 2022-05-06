@@ -27,6 +27,7 @@ instruction-set: !<is1>
     WRITE: !<shuffle>
       probability: 100
       range: "BYTE"
+
   bootstraps:
   - code:
     - "label0"

@@ -1,19 +1,20 @@
 package us.actar.dina.is.is1;
 
-import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
+import us.actar.dina.*;
 
 public class Nop extends Base {
 
-  public Nop (RegisterRandomizer.Name randomizer) {
+  public Nop (InstructionGroup randomizer) {
     super (randomizer);
   }
 
   @Override
   public void register (InstructionSet registry) {
     registry.register (
-      "nop",
-      (machine, state) -> {
+      new Instruction ("nop", group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+        }
       }
     );
   }

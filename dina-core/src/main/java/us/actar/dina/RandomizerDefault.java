@@ -9,7 +9,7 @@ public class RandomizerDefault implements Randomizer {
 
   private final Random random;
 
-  private final Map<? extends RegisterRandomizer.Name, ? extends RegisterRandomizer> randomizers;
+  private final Map<? extends InstructionGroup, ? extends RegisterRandomizer> randomizers;
 
   private final Config config;
 
@@ -34,7 +34,7 @@ public class RandomizerDefault implements Randomizer {
   }
 
   @Override
-  public RegisterRandomizer<?> getRegisterRandomizer (RegisterRandomizer.Name name) {
-    return this.randomizers.get (name);
+  public RegisterRandomizer<?> getRegisterRandomizer (InstructionGroup instructionGroup) {
+    return this.randomizers.get (instructionGroup);
   }
 }

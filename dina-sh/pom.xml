@@ -28,12 +28,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>us.actar.dina.TJL</mainClass>
-          <!--
-          <arguments>
-            <argument>color</argument>
-          </arguments>
-          -->
+          <mainClass>us.actar.dina.Main</mainClass>
         </configuration>
       </plugin>
     </plugins>

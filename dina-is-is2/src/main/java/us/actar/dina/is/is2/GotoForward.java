@@ -1,13 +1,16 @@
-package us.actar.dina.is.is1;
+package us.actar.dina.is.is2;
 
+import us.actar.dina.Fault;
 import us.actar.dina.*;
+
+import static us.actar.dina.is.is2.IS2InstructionGroup.GOTO;
 
 public class GotoForward extends Base {
 
   private final int label;
 
-  public GotoForward (InstructionGroup randomizer, int label) {
-    super (randomizer);
+  public GotoForward (int label) {
+    super (GOTO);
     this.label = label;
   }
 

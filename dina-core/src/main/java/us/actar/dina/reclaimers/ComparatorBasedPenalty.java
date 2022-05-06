@@ -16,8 +16,7 @@ public abstract class ComparatorBasedPenalty implements HeapReclaimer {
 
   protected final Comparator<Program> comparator;
 
-  public ComparatorBasedPenalty (Machine machine, Comparator<Program> comparator
-  ) {
+  public ComparatorBasedPenalty (Machine machine, Comparator<Program> comparator) {
     this.machine = machine;
     this.comparator = comparator;
   }

@@ -1,11 +1,9 @@
 package us.actar.dina.is.is2;
 
+import us.actar.dina.*;
 import us.actar.dina.Fault;
-import us.actar.dina.Heap;
-import us.actar.dina.InstructionSet;
-import us.actar.dina.randomizers.RegisterRandomizer;
 
-import static us.actar.dina.is.is2.IS2Randomizers.FIND;
+import static us.actar.dina.is.is2.IS2InstructionGroup.FIND;
 
 public class FindBackward extends Base {
 
@@ -20,17 +18,19 @@ public class FindBackward extends Base {
   public void register (InstructionSet registry) {
     int opcode = Label.getOpcode (registry, label);
     registry.register (
-      String.format ("find_backward_label%d", label),
-      (machine, state) -> {
-        Heap heap = machine.getHeap ();
-        for (int i = state.getInstructionPointer (); i >= 0; i--) {
-          if (opcode == heap.get (i)) {
-            getRegisters (state).push (i, machine.getRandomizer (randomizer));
-            return;
+      new Instruction (String.format ("find_backward_label%d", label), group) {
+        @Override
+        public void process (Machine machine, Program state) throws Fault {
+          Heap heap = machine.getHeap ();
+          for (int i = state.getInstructionPointer (); i >= 0; i--) {
+            if (opcode == heap.get (i)) {
+              FindBackward.this.getRegisters (state).push (i, machine.getRandomizer (group));
+              return;
+            }
           }
-        }
 
-        throw new Fault ();
+          throw new Fault ();
+        }
       });
   }
 }

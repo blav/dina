@@ -1,5 +1,7 @@
 package us.actar.dina;
 
+import java.util.stream.IntStream;
+
 import static java.lang.Math.log;
 import static java.util.Arrays.stream;
 
@@ -13,13 +15,13 @@ public class Metrics {
     double[] counts = new double[base];
     program.getCell ().bytes ()
       .map (machine.getHeap ()::get)
-      .filter (opcode -> opcode >= 00 && opcode < base)
+      .filter (opcode -> opcode >= 0 && opcode < base)
       .forEach (opcode -> counts[opcode]++);
 
     return stream (counts)
       .filter (d -> d != 0)
       .map (d -> d / (double) program.getCell ().getSize ())
-      .map (p -> -p * log (p))
+      .map (p -> - p * log (p))
       .sum () / log ((double) base);
   }
 
@@ -30,4 +32,5 @@ public class Metrics {
       .map (i -> heap.get ((int) i) & 255)
       .reduce (1, (h, i) -> h * 31 + i);
   }
+
 }

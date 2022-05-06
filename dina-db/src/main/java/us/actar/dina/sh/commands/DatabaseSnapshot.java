@@ -65,18 +65,18 @@ public class DatabaseSnapshot implements Command {
           .values ()
           .forEach (b -> {
               StringBuilder insert = new StringBuilder ("INSERT INTO program " +
-                "(snapshot, id, parent, ip, forks, faults, position, size, cycles, entropy, hash, code) VALUES (");
+                "(snapshot, id, parent, ip, forks, faults, position, size, cycles, skipped, entropy, energy, hash, code) VALUES (");
 
               insert.append (b.stream ()
                 .map (programs::get)
                 .map (p -> {
                   String code = rawDump (machine, p, new StringWriter ()).toString ();
                   String hash = format ("%016x", hash (machine, p));
-                  return format ("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %s, '%s', '%s')",
+                  return format ("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %s, %d, '%s', '%s')",
                     sid,
                     p.getId (), p.getParentId (), p.getInstructionPointer (), p.getForks (), p.getFaults (),
-                    p.getCell ().getOffset (), p.getCell ().getSize (), p.getCycles (),
-                    format.format (entropy (machine, p)), hash, code);
+                    p.getCell ().getOffset (), p.getCell ().getSize (), p.getCycles (), p.getSkipped (),
+                    format.format (entropy (machine, p)), p.getEnergy (), hash, code);
                 })
                 .collect (joining (", ")));
 

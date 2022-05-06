@@ -1,7 +1,7 @@
 package us.actar.dina.sh.debug;
 
 import us.actar.commons.Chain.Filter;
-import us.actar.commons.Handle;
+import us.actar.commons.Disposable;
 import us.actar.dina.Extension;
 import us.actar.dina.Machine;
 import us.actar.dina.Program;
@@ -22,7 +22,7 @@ public class DebugExtension implements Context.Extension, Extension {
 
   private final Map<Integer, ProgramDebugger> handles;
 
-  private Handle handle;
+  private Disposable disposable;
 
   public DebugExtension () {
     this.handles = new HashMap<> ();
@@ -30,7 +30,7 @@ public class DebugExtension implements Context.Extension, Extension {
 
   @Override
   public void init (Context context) {
-    this.handle = context.getLoop ().getMachine ().install (DebugExtension.this);
+    this.disposable = context.getLoop ().getMachine ().install (DebugExtension.this);
   }
 
   public boolean install (Machine machine, int pid) {
@@ -56,8 +56,8 @@ public class DebugExtension implements Context.Extension, Extension {
   public void close () {
     this.handles.values ().forEach (ProgramDebugger::close);
     this.handles.clear ();
-    this.handle.uninstall ();
-    this.handle = null;
+    this.disposable.dispose ();
+    this.disposable = null;
   }
 
   @Override
