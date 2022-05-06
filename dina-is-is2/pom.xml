@@ -10,7 +10,6 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>us.actar</groupId>
   <artifactId>dina-is-is2</artifactId>
   <packaging>jar</packaging>
 

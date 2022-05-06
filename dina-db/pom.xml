@@ -10,29 +10,8 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>us.actar</groupId>
   <artifactId>dina-db</artifactId>
   <packaging>jar</packaging>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.6.0</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>us.actar.dina.Main</mainClass>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>

@@ -10,20 +10,43 @@
     <version>0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>dina-is-is1</artifactId>
+  <artifactId>dina-main</artifactId>
   <packaging>jar</packaging>
-
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <mainClass>us.actar.dina.Main</mainClass>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
+
     <dependency>
       <groupId>us.actar</groupId>
-      <artifactId>commons</artifactId>
+      <artifactId>dina-is-is1</artifactId>
       <version>${dina.version}</version>
     </dependency>
     <dependency>
       <groupId>us.actar</groupId>
-      <artifactId>dina-core</artifactId>
+      <artifactId>dina-is-is2</artifactId>
       <version>${dina.version}</version>
     </dependency>
+    <dependency>
+      <groupId>us.actar</groupId>
+      <artifactId>dina-db</artifactId>
+      <version>${dina.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>us.actar</groupId>
+      <artifactId>dina-sh</artifactId>
+      <version>${dina.version}</version>
+    </dependency>
+
 
     <!-- junit -->
     <dependency>

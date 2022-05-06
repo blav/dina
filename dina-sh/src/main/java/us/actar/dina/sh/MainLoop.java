@@ -35,6 +35,7 @@ public class MainLoop implements Runnable {
     return actualState;
   }
 
+  @SuppressWarnings ("unused")
   public State getRequestedState () {
     return requestedState;
   }
@@ -52,6 +53,7 @@ public class MainLoop implements Runnable {
         this.actualized.await ();
       }
     } catch (InterruptedException e) {
+      //
     } finally {
       this.lock.unlock ();
     }
@@ -77,6 +79,7 @@ public class MainLoop implements Runnable {
 
         machine.update ();
       } catch (InterruptedException e) {
+        //
       } finally {
         lock.unlock ();
       }

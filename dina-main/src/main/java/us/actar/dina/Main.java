@@ -1,5 +1,13 @@
 package us.actar.dina;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -15,12 +23,8 @@ import org.jline.utils.AttributedStyle;
 import us.actar.dina.sh.CommandsRegistry;
 import us.actar.dina.sh.Context;
 import us.actar.dina.sh.MainLoop;
-import us.actar.dina.sh.commands.Error;
 import us.actar.dina.sh.alias.AliasExtension;
-
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import us.actar.dina.sh.commands.Error;
 
 import static java.util.Collections.synchronizedList;
 import static java.util.Optional.ofNullable;
@@ -33,8 +37,13 @@ public class Main {
     ObjectMapper mapper = new ObjectMapper (new YAMLFactory ())
       .setDefaultPropertyInclusion (JsonInclude.Include.NON_NULL);
 
+    String configFile = Optional.of (args)
+      .filter (a -> a.length == 1)
+      .map (a -> a[0])
+      .orElse ("sample-config-is1.yaml");
+
     Config config = mapper.reader ().forType (Config.class)
-      .readValue (Main.class.getClassLoader ().getResourceAsStream ("sample-config.yaml"));
+      .readValue (Main.class.getClassLoader ().getResourceAsStream (configFile));
 
     Machine vm = new Machine (config);
     MainLoop loop = new MainLoop (vm);
