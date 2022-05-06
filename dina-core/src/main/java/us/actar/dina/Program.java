@@ -2,8 +2,6 @@ package us.actar.dina;
 
 import us.actar.dina.randomizers.RegisterRandomizer;
 
-import java.util.Optional;
-
 import static java.util.Optional.ofNullable;
 
 public class Program {
@@ -28,13 +26,16 @@ public class Program {
 
   private int skipped;
 
+  private final int generation;
+
   private final int parentId;
 
-  public Program (Program parent, Heap.Cell cell, InstructionSetConfig registers) {
+  public Program (Program parent, Heap.Cell cell, InstructionSetConfig<?, ?> registers) {
     this.cell = cell;
     this.registers = registers.createRegisters (this);
     this.parentId = ofNullable (parent).map (Program::getId).orElse (0);
     this.energy = registers.getInitialEnergy ();
+    this.generation = ofNullable (parent).map (p -> 1 + p.getGeneration ()).orElse (0);
   }
 
   public Heap.Cell getCell () {
@@ -54,6 +55,10 @@ public class Program {
 
   public Registers getRegisters () {
     return registers;
+  }
+
+  public int getGeneration () {
+    return generation;
   }
 
   public int getInstructionPointer () {
@@ -113,7 +118,7 @@ public class Program {
   }
 
   public void incrementSkipped () {
-    this.skipped ++;
+    this.skipped++;
   }
 
   public int getEnergy () {

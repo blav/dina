@@ -30,7 +30,7 @@ public class DatabaseSnapshot implements Command {
   public boolean run (Context context, Scanner arguments) {
     return context.executePaused (c -> {
       DatabaseExtension extension = context.getExtension (DatabaseExtension.class);
-      if (extension.isOpen () == false) {
+      if (! extension.isOpen ()) {
         context.getErr ().println ("no database open.");
         return true;
       }
@@ -65,16 +65,16 @@ public class DatabaseSnapshot implements Command {
           .values ()
           .forEach (b -> {
               StringBuilder insert = new StringBuilder ("INSERT INTO program " +
-                "(snapshot, id, parent, ip, forks, faults, position, size, cycles, skipped, entropy, energy, hash, code) VALUES (");
+                "(snapshot, id, parent, generation, ip, forks, faults, position, size, cycles, skipped, entropy, energy, hash, code) VALUES (");
 
               insert.append (b.stream ()
                 .map (programs::get)
                 .map (p -> {
                   String code = rawDump (machine, p, new StringWriter ()).toString ();
                   String hash = format ("%016x", hash (machine, p));
-                  return format ("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %s, %d, '%s', '%s')",
+                  return format ("(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %s, %d, '%s', '%s')",
                     sid,
-                    p.getId (), p.getParentId (), p.getInstructionPointer (), p.getForks (), p.getFaults (),
+                    p.getId (), p.getParentId (), p.getGeneration (), p.getInstructionPointer (), p.getForks (), p.getFaults (),
                     p.getCell ().getOffset (), p.getCell ().getSize (), p.getCycles (), p.getSkipped (),
                     format.format (entropy (machine, p)), p.getEnergy (), hash, code);
                 })
@@ -85,7 +85,7 @@ public class DatabaseSnapshot implements Command {
               try (PreparedStatement p = connection.prepareStatement (insert.toString ())) {
                 p.execute ();
               } catch (Exception e) {
-                System.out.println (insert.toString ());
+                System.out.println (insert);
                 throw new RuntimeException (e);
               }
             }
