@@ -9,8 +9,6 @@ public class CouplingModule extends AbstractModule {
   protected void configure () {
     CommandsRegistry.newCommandBuilder (binder ())
       .registerCommand ("coupling-dump", CouplingDump.class)
-      //.registerCommand ("profiler-start", ProfilerStart.class)
-      //.registerCommand ("profiler-dump", ProfilerDump.class)
       .done ();
   }
 }

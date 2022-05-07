@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.*;
@@ -26,11 +27,10 @@ public class CouplingDump implements Command {
       symbols.put (- 1, "_first");
       symbols.put (set.getOpcodes ().size (), "_last");
 
-      c.getOut ().println (Arrays.asList (
+      c.getOut ().println (Stream.of (
         Arrays.asList ("symbol", "_first"),
         set.getOpcodes ().stream ().map (Opcode::getSymbol).collect (toList ()),
         singleton ("_last"))
-        .stream ()
         .flatMap (Collection::stream)
         .collect (Collectors.joining (";")));
 

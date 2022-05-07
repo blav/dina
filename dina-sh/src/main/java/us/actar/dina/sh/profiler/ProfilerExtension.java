@@ -1,5 +1,9 @@
 package us.actar.dina.sh.profiler;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import us.actar.commons.Chain;
 import us.actar.commons.Disposable;
 import us.actar.commons.Profiler;
@@ -9,16 +13,12 @@ import us.actar.dina.Machine;
 import us.actar.dina.Opcode;
 import us.actar.dina.sh.Context;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import static java.util.Comparator.comparingLong;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class ProfilerExtension implements Context.Extension {
 
-  private class Session implements Extension, AutoCloseable {
+  private static class Session implements Extension, AutoCloseable {
 
     private final Disposable disposable;
 
@@ -29,7 +29,7 @@ public class ProfilerExtension implements Context.Extension {
       this.disposable = machine.install (this);
       this.profiler = new Profiler ();
       Collection<Opcode> opcodes = machine.getInstructionSet ().getOpcodes ();
-      opcodes.stream ().forEach (o -> profiler.addTimer (o.getGroup () + "." + o.getSymbol (), () -> o.getOpcode ()));
+      opcodes.forEach (o -> profiler.addTimer (o.getGroup () + "." + o.getSymbol (), o::getOpcode));
       int defaultTimer = opcodes.stream ().mapToInt (Opcode::getOpcode).max ().orElse (0) + 1;
       this.profiler.addTimer ("-.-", () -> defaultTimer);
       this.profiler.setDefaultTimer (defaultTimer);
@@ -145,7 +145,7 @@ public class ProfilerExtension implements Context.Extension {
         .thenComparing (Entry::getKey))
       .forEach (e -> e.print (context, total));
 
-    System.out.println ("");
+    System.out.println ();
     System.out.println ("Instruction timings");
     System.out.println ("-------------------");
     timers.entrySet ().stream ()
@@ -154,7 +154,6 @@ public class ProfilerExtension implements Context.Extension {
         .reversed ()
         .thenComparing (Entry::getKey))
       .forEach (e -> e.print (context, total));
-    ;
   }
 
   @Override
