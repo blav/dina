@@ -52,7 +52,8 @@ public class Main {
 
     List<Completer> completers = synchronizedList (new ArrayList<> ());
     completers.add (new TreeCompleter (CommandsRegistry.getCommands ().entrySet ().stream ()
-      .map (e -> e.getValue ().getCompletions (e.getKey ())).collect (toList ())));
+      .map (e -> e.getValue ().getCompletions (e.getKey ()))
+      .collect (toList ())));
 
     LineReader reader = LineReaderBuilder.builder ()
       .appName ("dina")
@@ -80,14 +81,15 @@ public class Main {
             cmd = line.next ();
           }
 
-          run = ofNullable (CommandsRegistry.getCommand (cmd)).orElse (new Error (cmd)).run (context, line);
+          run = ofNullable (CommandsRegistry.getCommand (cmd))
+            .orElse (new Error (cmd))
+            .run (context, line);
         } catch (NoSuchElementException e) {
           //
         }
       }
     }
 
-    loop.requestState (MainLoop.State.stopped);
     executor.shutdown ();
   }
 }

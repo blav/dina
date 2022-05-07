@@ -1,43 +1,38 @@
 package us.actar.dina.sh;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
+
 import us.actar.dina.Machine;
 
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
-
 import static us.actar.dina.sh.MainLoop.State.paused;
+import static us.actar.dina.sh.MainLoop.State.running;
 import static us.actar.dina.sh.MainLoop.State.stopped;
 
 public class MainLoop implements Runnable {
-
-  private final ReentrantLock lock;
-
-  private final Condition requested;
-
-  private final Condition actualized;
 
   private final Machine machine;
 
   private State actualState;
 
-  private State requestedState;
+  private final ArrayBlockingQueue<Request> requestQueue;
+
+  interface Request {
+
+    State getRequestedState ();
+
+    void complete ();
+
+  }
 
   public MainLoop (Machine machine) {
     this.machine = machine;
-    this.lock = new ReentrantLock ();
-    this.requested = this.lock.newCondition ();
-    this.actualized = this.lock.newCondition ();
-    this.actualState = stopped;
-    this.requestedState = paused;
+    this.actualState = paused;
+    this.requestQueue = new ArrayBlockingQueue<> (1);
   }
 
   public State getActualState () {
     return actualState;
-  }
-
-  @SuppressWarnings ("unused")
-  public State getRequestedState () {
-    return requestedState;
   }
 
   public Machine getMachine () {
@@ -45,43 +40,48 @@ public class MainLoop implements Runnable {
   }
 
   public void requestState (State state) {
-    this.lock.lock ();
     try {
-      while (state != this.requestedState) {
-        this.requestedState = state;
-        this.requested.signalAll ();
-        this.actualized.await ();
-      }
+      CountDownLatch latch = new CountDownLatch (1);
+      Request request = new Request () {
+        @Override
+        public State getRequestedState () {
+          return state;
+        }
+
+        @Override
+        public void complete () {
+          latch.countDown ();
+        }
+      };
+
+      requestQueue.put (request);
+      latch.await ();
     } catch (InterruptedException e) {
       //
-    } finally {
-      this.lock.unlock ();
     }
   }
 
   @Override
   public void run () {
     while (true) {
-      lock.lock ();
+      Request request;
       try {
-        while (actualState != requestedState) {
-          actualState = requestedState;
-          actualized.signalAll ();
-        }
-
-        if (actualState == stopped)
-          return;
-
-        if (actualState == paused) {
-          requested.await ();
-          continue;
-        }
-
-        machine.update ();
+        request = actualState == paused ?
+          requestQueue.take () :
+          requestQueue.poll ();
       } catch (InterruptedException e) {
-        //
-      } finally {
-        lock.unlock ();
+        return;
+      }
+
+      if (request != null) {
+        actualState = request.getRequestedState ();
+        request.complete ();
+      }
+
+      if (actualState == stopped) {
+        return;
+      } else if (actualState == running) {
+        machine.update ();
       }
     }
   }
