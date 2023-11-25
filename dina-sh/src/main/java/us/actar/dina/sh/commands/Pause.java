@@ -6,7 +6,11 @@ import us.actar.dina.sh.MainLoop;
 
 import java.util.Scanner;
 
-public class Pause implements Command {
+public class Pause extends Command {
+
+  public Pause () {
+    super ("Pause the machine.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

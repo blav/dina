@@ -6,7 +6,11 @@ import us.actar.dina.sh.MainLoop;
 
 import java.util.Scanner;
 
-public class Exit implements Command {
+public class Exit extends Command {
+
+  public Exit () {
+    super ("Exit the machine.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

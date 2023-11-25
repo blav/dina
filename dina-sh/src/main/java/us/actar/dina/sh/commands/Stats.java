@@ -10,7 +10,11 @@ import java.util.Scanner;
 
 import static java.util.Comparator.comparingInt;
 
-public class Stats implements Command {
+public class Stats extends Command {
+
+  public Stats () {
+    super ("Show statistics about the machine.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

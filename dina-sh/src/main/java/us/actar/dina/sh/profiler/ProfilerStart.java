@@ -5,7 +5,11 @@ import us.actar.dina.sh.Context;
 
 import java.util.Scanner;
 
-public class ProfilerStart implements Command {
+public class ProfilerStart extends Command {
+
+  ProfilerStart () {
+    super ("Start the profiler.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

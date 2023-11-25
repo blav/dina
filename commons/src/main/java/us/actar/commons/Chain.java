@@ -61,7 +61,7 @@ public class Chain<IN> {
     }
 
     public void next (IN in) {
-      if (filters.size () == 0)
+      if (filters.isEmpty())
         throw new IllegalStateException ("no filter");
 
       if (this.current == filters.size ()) {

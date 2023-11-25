@@ -8,7 +8,11 @@ import java.util.Scanner;
 
 import static java.util.Comparator.comparing;
 
-public class AliasList implements Command {
+public class AliasList extends Command {
+
+  public AliasList () {
+    super ("List all aliases.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

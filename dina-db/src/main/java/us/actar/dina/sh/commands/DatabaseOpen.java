@@ -9,8 +9,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class DatabaseOpen implements Command {
+public class DatabaseOpen extends Command {
 
+  DatabaseOpen () {
+    super ("Open the database.");
+  }
   @Override
   public boolean run (Context context, Scanner arguments) {
     DatabaseExtension extension = context.getExtension (DatabaseExtension.class);

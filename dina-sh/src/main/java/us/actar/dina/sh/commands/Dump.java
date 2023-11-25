@@ -12,8 +12,13 @@ import java.io.UncheckedIOException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Dump implements Command {
+public class Dump extends Command {
 
+  Dump () {
+    super ("Dump the program's memory.");
+  }
+
+  @SuppressWarnings ("UnusedReturnValue")
   public static <A extends Appendable> A dump (Machine machine, Program state, A out) {
     try {
       Heap.Cell cell = state.getCell ();
@@ -57,7 +62,7 @@ public class Dump implements Command {
         dump (context.getLoop ().getMachine (), p, context.getOut ());
       }
     } catch (InputMismatchException e) {
-      context.getErr ().printf ("The dump command expects an integer program id.\n");
+      context.getErr ().print ("The dump command expects an integer program id.\n");
     } catch (UncheckedIOException e) {
       context.getErr ().printf ("Unexpected error: %s.\n", e.getMessage ());
     }

@@ -221,7 +221,7 @@ public final class Machine {
     // copy state list since it can be altered while in the loop
     new ArrayList<> (this.programs.values ()).forEach (this::execute);
 
-    ArrayList<Program> programs = new ArrayList<> ();
+    ArrayList<Program> reclaimed = new ArrayList<> ();
     reclaim.next (new Reclaim () {
       @Override
       public Machine getMachine () {
@@ -230,11 +230,11 @@ public final class Machine {
 
       @Override
       public List<Program> getReclaimList () {
-        return programs;
+        return reclaimed;
       }
     });
 
-    for (Program program : programs) {
+    for (Program program : reclaimed) {
       program.getCell ().bytes ().forEach (i -> getHeap ().set (i, 0));
       if (program.getChild () != null)
         program.getChild ().bytes ().forEach (i -> getHeap ().set (i, 0));

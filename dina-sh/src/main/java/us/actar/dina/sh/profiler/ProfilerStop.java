@@ -5,7 +5,11 @@ import us.actar.dina.sh.Context;
 
 import java.util.Scanner;
 
-public class ProfilerStop implements Command {
+public class ProfilerStop extends Command {
+
+  ProfilerStop () {
+    super ("Stop the profiler.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

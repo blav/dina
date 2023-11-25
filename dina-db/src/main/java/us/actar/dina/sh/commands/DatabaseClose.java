@@ -6,12 +6,16 @@ import us.actar.dina.sh.extensions.DatabaseExtension;
 
 import java.util.Scanner;
 
-public class DatabaseClose implements Command {
+public class DatabaseClose extends Command {
+
+  public DatabaseClose () {
+    super ("Close the database.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {
     DatabaseExtension extension = context.getExtension (DatabaseExtension.class);
-    if (extension.isOpen () == false) {
+    if (!extension.isOpen ()) {
       context.getErr ().println ("no open database.");
       return true;
     }

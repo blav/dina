@@ -6,7 +6,11 @@ import us.actar.dina.sh.MainLoop;
 
 import java.util.Scanner;
 
-public class Resume implements Command {
+public class Resume extends Command {
+
+  public Resume () {
+    super ("Resume the machine.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

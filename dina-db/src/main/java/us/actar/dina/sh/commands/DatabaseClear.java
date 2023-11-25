@@ -9,12 +9,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Scanner;
 
-public class DatabaseClear implements Command {
+public class DatabaseClear extends Command {
+
+  DatabaseClear () {
+    super ("Clears the database.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {
     DatabaseExtension extension = context.getExtension (DatabaseExtension.class);
-    if (extension.isOpen () == false) {
+    if (!extension.isOpen ()) {
       context.getErr ().println ("no open database.");
       return true;
     }
@@ -28,7 +32,8 @@ public class DatabaseClear implements Command {
         ps.execute ();
       }
     } catch (SQLException e) {
-      e.printStackTrace ();
+      context.getErr ().println ("could not clear database.");
+      e.printStackTrace (context.getErr ());
     }
 
     return true;

@@ -15,7 +15,11 @@ import java.util.stream.Stream;
 import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.*;
 
-public class CouplingDump implements Command {
+public class CouplingDump extends Command {
+
+  public CouplingDump () {
+    super ("Dump the coupling matrix.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

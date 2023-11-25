@@ -5,7 +5,11 @@ import us.actar.dina.sh.Context;
 
 import java.util.Scanner;
 
-public class AliasRemove implements Command {
+public class AliasRemove extends Command {
+
+  public AliasRemove () {
+    super ("Remove an alias.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

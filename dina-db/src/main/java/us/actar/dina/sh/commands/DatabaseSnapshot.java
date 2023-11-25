@@ -24,7 +24,11 @@ import static us.actar.dina.Metrics.entropy;
 import static us.actar.dina.Metrics.hash;
 import static us.actar.dina.sh.commands.Dump.rawDump;
 
-public class DatabaseSnapshot implements Command {
+public class DatabaseSnapshot extends Command {
+
+  public DatabaseSnapshot () {
+    super ("Creates a snapshot of the current machine state.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {
@@ -94,7 +98,7 @@ public class DatabaseSnapshot implements Command {
         connection.commit ();
         context.getOut ().printf ("snapshot %d was created.\n", sid);
       } catch (Exception e) {
-        e.printStackTrace ();
+        e.printStackTrace (context.getErr ());
       }
 
       return true;

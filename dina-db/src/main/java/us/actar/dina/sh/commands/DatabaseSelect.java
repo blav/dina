@@ -25,12 +25,16 @@ import java.util.stream.IntStream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-public class DatabaseSelect implements Command {
+public class DatabaseSelect extends Command {
+
+  public DatabaseSelect () {
+    super ("Executes a select statement.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {
     DatabaseExtension extension = context.getExtension (DatabaseExtension.class);
-    if (extension.isOpen () == false) {
+    if (!extension.isOpen ()) {
       context.getErr ().println ("no open database.");
       return true;
     }
@@ -40,7 +44,7 @@ public class DatabaseSelect implements Command {
       statement = CCJSqlParserUtil.parse ("select " + arguments.nextLine ());
     } catch (JSQLParserException e) {
       String m = e.getMessage ();
-      for (Throwable c = e; c != null && m == null; ) {
+      for (Throwable c = e; m == null; ) {
         c = c.getCause ();
         m = c.getMessage ();
       }
@@ -102,7 +106,7 @@ public class DatabaseSelect implements Command {
         if (extension.isCompact ())
           asciiTable.addRule ();
 
-        for (int line = 0; rs.next (); line ++) {
+        while (rs.next ()) {
           if (!extension.isCompact ())
             asciiTable.addRule ();
 

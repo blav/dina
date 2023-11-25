@@ -15,7 +15,7 @@ public class Heap {
 
   private int available;
 
-  private byte[] heap;
+  private final byte[] heap;
 
   private Cell first;
 
@@ -44,10 +44,6 @@ public class Heap {
     ensureValidOffset (offset);
     ensureValidValue (value);
     heap[offset] = (byte) (value & 0xff);
-  }
-
-  public int getAvailable () {
-    return available;
   }
 
   public int getTotal () {
@@ -281,7 +277,5 @@ public class Heap {
     public String toString () {
       return "[" + offset + "-" + state.getShortName () + "-" + (offset + size) + "[";
     }
-
   }
-
 }

@@ -6,7 +6,11 @@ import us.actar.dina.sh.Context;
 
 import java.util.Scanner;
 
-public class Clear implements Command {
+public class Clear extends Command {
+
+  public Clear () {
+    super ("Clear the screen.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {

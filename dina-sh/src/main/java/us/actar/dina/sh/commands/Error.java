@@ -5,7 +5,7 @@ import us.actar.dina.sh.Context;
 
 import java.util.Scanner;
 
-public class Error implements Command {
+public class Error extends Command {
 
   private final String command;
 

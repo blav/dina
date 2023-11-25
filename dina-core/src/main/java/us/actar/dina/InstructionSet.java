@@ -1,10 +1,14 @@
 package us.actar.dina;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.TreeSet;
 
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.IntStream.range;
 
 public class InstructionSet {
@@ -20,7 +24,7 @@ public class InstructionSet {
   public InstructionSet () {
     this.opcodes = new HashMap<> ();
     this.symbols = new HashMap<> ();
-    this.availableOpcodes = new TreeSet<> (range (0, 256).boxed ().collect (toSet ()));
+    this.availableOpcodes = range (0, 256).boxed ().collect (toCollection (TreeSet::new));
   }
 
   public Opcode getInstruction (int opcode) {

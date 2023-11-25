@@ -10,12 +10,17 @@ import java.util.Scanner;
 import static org.jline.builtins.Completers.TreeCompleter.node;
 
 
-public class DatabaseOption implements Command {
+public class DatabaseOption extends Command {
+
+  public DatabaseOption () {
+    super ("Set database options.");
+  }
 
   @Override
   public boolean run (Context context, Scanner arguments) {
     DatabaseExtension extension = context.getExtension (DatabaseExtension.class);
     String option = arguments.next ();
+    //noinspection SwitchStatementWithTooFewBranches
     switch (option) {
       case "compact":
         try {
